@@ -13,6 +13,9 @@ baseline by using traditional NLP features and classifier.
 
 The FNC concerns the first step in detecting fake news-- stance detection. The idea is that automating a stance detection process could serve as the crucial first step in a complementary AI-assisted fact-checking pipeline. Stance detection commonly involves estimating the relative perspective (i.e., stance) of two pieces of text relative to a topic. However, the FNC _specifically_ extends the stance detection work of Ferreira & Vlachos (see Related work). In the FNC, the task is to estimate the stance of a body text from a news article relative to the headline and categorize it into one of four categories: agree, disagree, discusses, or unrelated.
 
+<p align="center"><img src="https://github.com/amallia/FakeNewsChallenge/blob/master/report/images/fnc-eval.png" ></p>
+
+
 The top scorers of the FNC implemented deep learning methods for stance detection by analyzing and optimizing neural-based methods. This was not surprising as this family of techniques gained popularity in 2017, around the time of the competition. Top scorers fared very well with "unrelated" categories, but performed poorly with respect to accuracy on "agree" and "disagree" stances (see Dataset). Our team's objective is to explore the possibility of improving accuracies in the "agree" and "disagree" stances. To achieve this, our plan is to build a fairly simple system using tradition NLP features and classifier (see Methodology). The team's success will be measured against the official baseline accuracy of 79.53% weighted accuracy.
 
 ## Dataset
