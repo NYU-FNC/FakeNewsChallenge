@@ -53,3 +53,5 @@ As part of our initial background research, we relied upon two previous related 
 ### Baseline
 
 FNC-1 provides a [baseline model](https://github.com/FakeNewsChallenge/fnc-1-baseline) consisting of hand-engineered features, including n-gram co-occurrence counts between the headline and article and indicator features for polarity and refutation, to train a gradient-boosting classifier. The baseline accuracy is 79.52%.
+
+The baseline implementation does a good job of separating related stances from the rest, but performs rather poorly when differentiating between agree, disagree, and discuss.
