@@ -49,3 +49,7 @@ As part of our initial background research, we relied upon two previous related 
 2)  Benjamin Riedel, Isabelle Augenstein, Georgios P. Spithourakis, Sebastian Riedel. A simple but tough-to-beat baseline for the Fake News Challenge stance detection task. https://arxiv.org/abs/1707.03264, July 2017.
 
 ## Evaluation plan
+
+### Baseline
+
+FNC-1 provides a [baseline model](https://github.com/FakeNewsChallenge/fnc-1-baseline) consisting of hand-engineered features, including n-gram co-occurrence counts between the headline and article and indicator features for polarity and refutation, to train a gradient-boosting classifier. The baseline accuracy is 79.52%.
