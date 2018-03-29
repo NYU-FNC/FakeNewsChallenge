@@ -2,28 +2,31 @@
 
 ### Team
 
-- Kedar Gangopadhyay, `kedarg@nyu.edu`
-- Antonio Mallia, `me@antoniomallia.it`
 - Melanie Tosik (mt3685), `tosik@nyu.edu`
+- Antonio Mallia, `me@antoniomallia.it`
+- Kedar Gangopadhyay, `kedarg@nyu.edu`
 
 ## Problem description
 
-- work on Fake News Challenge
-- definition of fake news and specifically stance detection
-- previous work all neural-based method
-- data distribution overwhelmingly "unrelated", only 0.17828 percent of data "discusses" (0.0736012 "agree"/0.0168094 "disagree")
-- previous methods low accuracy on "agree" stances
-- see if we can beat official baseline by using traditional NLP features/classifier
+The Fake News Challenge (the "FNC") was a competition in 2017 to advance the application of AI to help solve the fake news problem.  Fifty competing teams developed machine learning systems for fake news detection. Earlier this year, the datasets were released to the public. Our team's objective is to utilize the datasets and attempt to beat the official
+baseline by using traditional NLP features and classifier.
+
+The FNC concerns the first step in detecting fake news-- stance detection. The idea is that automating a stance detection process could serve as the crucial first step in a complementary AI-assisted fact-checking pipeline. Stance detection commonly involves estimating the relative perspective (i.e., stance) of two pieces of text relative to a topic. However, the FNC _specifically_ extends the stance detection work of Ferreira & Vlachos (see Related work). In the FNC, the task is to estimate the stance of a body text from a news article relative to the headline and categorize it into one of four categories: agree, disagree, discusses, or unrelated.
+
+The top scorers of the FNC implemented deep learning methods for stance detection by analyzing and optimizing neural-based methods. This was not surprising as this family of techniques gained popularity in 2017, around the time of the competition. Top scorers fared very well with "unrelated" categories, but performed poorly with respect to accuracy on "agree" and "disagree" stances (see Dataset). Our team's objective is to explore the possibility of improving accuracies in the "agree" and "disagree" stances. To achieve this, our plan is to build a fairly simple system using tradition NLP features and classifier (see Methodology). The team's success will be measured against the official baseline accuracy of 79.53% weighted accuracy.
 
 ## Dataset
+The distribution of the output labels is overwhelmingly "unrelated" to the headline. The distribution of the stances are outlined below:
 
-Problem is 2-fold:
+|   rows  |   unrelated |   discuss |     agree |   disagree |
+|--------:|------------:|----------:|----------:|-----------:|
+|  49,972 |    0.73131  |  0.17828  | 0.0736012 |  0.0168094 |
 
-1. determine is heading/content are related/unrelated (syntax/semantics)
-2. if related, determine whether or not discusses/agree/disagrees (sentiment)
+Our team's objective is two-fold: 1) determine whether the heading/content is related/unrelated (syntax/semantics); and 2) as mentioned previously, determine whether the heading/content discusses/agree/disagrees (sentiment). Moreover, we will test whether traditional NLP features can improve upon the low accuracies in the "agree" and "disagree" stances of previous participants.
 
-http://www.fakenewschallenge.org/
-https://github.com/FakeNewsChallenge/fnc-1
+_Sources_:
+1) http://www.fakenewschallenge.org/
+2) https://github.com/FakeNewsChallenge/fnc-1
 
 ## Methodology
 
@@ -38,10 +41,11 @@ Feature engineering, including:
 
 - Python/spaCy/gensim
 
-## Related work
+## Related works
+As part of our initial background research, we relied upon two previous related works:
 
-- Benjamin Riedel, Isabelle Augenstein, Georgios P. Spithourakis, Sebastian Riedel. A simple but tough-to-beat baseline for the Fake News Challenge stance detection task. https://arxiv.org/abs/1707.03264.
+1)  William Ferreira, Andreas Vlachos. Emergent: a novel data-set for stance classification. http://aclweb.org/anthology/N/N16/N16-1138.pdf, June 2016.
+
+2)  Benjamin Riedel, Isabelle Augenstein, Georgios P. Spithourakis, Sebastian Riedel. A simple but tough-to-beat baseline for the Fake News Challenge stance detection task. https://arxiv.org/abs/1707.03264, July 2017.
 
 ## Evaluation plan
-
-
