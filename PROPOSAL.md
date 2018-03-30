@@ -26,7 +26,7 @@ Headline,Body ID,Stance
 Police find mass graves with at least '15 bodies' near Mexico town where 43 students disappeared after police clash,712,unrelated
 ```
 
-The distribution of the output labels is overwhelmingly "unrelated" to the headline. The distribution of the stances are outlined below:
+The distribution of the output labels is overwhelmingly "unrelated" to the headline and is outlined below:
 
 |   rows  |   unrelated |   discuss |     agree |   disagree |
 |--------:|------------:|----------:|----------:|-----------:|
@@ -34,25 +34,24 @@ The distribution of the output labels is overwhelmingly "unrelated" to the headl
 
 ## Methodology
 
-Our team's objective is two-fold: 1) determine whether the heading/content is related/unrelated (syntax/semantics); and 2) as mentioned previously, determine whether the heading/content discusses/agree/disagrees (sentiment). Moreover, we will test whether traditional NLP features can improve upon the low accuracies in the "agree" and "disagree" stances of previous participants.
+Our team's objective is two-fold: 1) determine whether the heading/content is related/unrelated (syntax/semantics); and 2) as mentioned previously, determine whether the heading/content discusses/agrees/disagrees (sentiment). Moreover, we will test whether traditional NLP features can improve upon the low accuracies in the "agree" and "disagree" stances of previous participants.
 
-The related/unrelated classification task is expected to be much easier and is less relevant for detecting fake news, so it is given less weight in the evaluation metric. The Stance Detection task (classify as agrees, disagrees or discuss) is both more difficult and more relevant to fake news detection, so is to be given much more weight in the evaluation metric.
+The related/unrelated classification task is expected to be much easier and less relevant for detecting fake news, so it is given less weight in the evaluation metric. The Stance Detection task (classify as discusses/agrees/disagrees) is more difficult and relevant to fake news detection, thereby given much more weight in the evaluation metric.
 
-
-We intend to attack the problem using the following features:
+On a preliminary basis, we intend to attack the problem by at least considering the following features:
 - overlapping words between the headline and body
 - LSA/SVD
 - TF-IDF, cosine similarity between the headline and body
-- n-gram count
-- possibly use semantic role labeling to generate triples of (agent (subject), verb, patient (object))
+- n-gram counts
+- semantic role labeling to generate triples of (agent/subject, verb, patient/object)
 - dependency relations/syntactic features
 - vector features
 
 ### Baseline
 
-FNC-1 provides a [baseline model](https://github.com/FakeNewsChallenge/fnc-1-baseline) consisting of hand-engineered features, including n-gram co-occurrence counts between the headline and article and indicator features for polarity and refutation, to train a gradient-boosting classifier. The baseline accuracy is 79.53%.
+FNC-1 provides a [baseline model](https://github.com/FakeNewsChallenge/fnc-1-baseline) consisting of hand-engineered features, including n-gram co-occurrence counts between the headline and article and indicator features for polarity and refutation, to train a gradient-boosting classifier. Based on this mode, the baseline accuracy was 79.53%.
 
-The baseline implementation performs well separating related stances from the rest, but rather poorly when differentiating between agree, disagree, and discuss. Our goal is to improve upon this area of weakness while still achieving the baseline.
+The baseline implementation performs well separating related stances from the rest, but rather poorly when differentiating between agree, disagree, and discuss. Our goal is to improve upon this area of weakness while still achieving the baseline accuracy.
 
 ## References
 
