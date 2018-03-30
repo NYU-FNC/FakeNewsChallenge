@@ -57,5 +57,7 @@ The baseline implementation performs well separating related stances from the re
 ## References
 
 [1] Fake News Challenge. http://www.fakenewschallenge.org/
+
 [2] FNC-1 Dataset. https://github.com/FakeNewsChallenge/fnc-1
+
 [3] William Ferreira and Andreas Vlachos. Emergent: a novel data-set for stance classiﬁcation. In Proceedings of NAACL: Human Language Technologies. Association for Computational Linguistics, 2016.
