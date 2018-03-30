@@ -15,46 +15,46 @@ FNC-1 concerns the first step in detecting fake news-- stance detection. The ide
 
 <p align="center"><img src="https://github.com/amallia/FakeNewsChallenge/blob/master/report/images/fnc-eval.png" ></p>
 
-
 The top scorers of FNC-1 implemented deep learning methods for stance detection by analyzing and optimizing neural-based methods. This was not surprising as this family of techniques gained popularity in 2017, around the time of the competition. Top scorers fared very well with "unrelated" categories, but performed poorly with respect to accuracy on "agree" and "disagree" stances (see Dataset). Our team's objective is to explore the possibility of improving accuracies in the "agree" and "disagree" stances. To achieve this, our plan is to build a fairly simple system using tradition NLP features and classifier (see Methodology). The team's success will be measured against the official baseline accuracy of 79.53% weighted accuracy (see Evaluation plan).
 
 ## Dataset
+The dataset [1] consist of 49,972 labeled article headline and body pairs, which are derived from the Emergent Dataset [2].
+
+A sample of the data looks like this:
+```csv
+Headline,Body ID,Stance
+Police find mass graves with at least '15 bodies' near Mexico town where 43 students disappeared after police clash,712,unrelated
+```
+
 The distribution of the output labels is overwhelmingly "unrelated" to the headline. The distribution of the stances are outlined below:
 
 |   rows  |   unrelated |   discuss |     agree |   disagree |
 |--------:|------------:|----------:|----------:|-----------:|
 |  49,972 |    0.73131  |  0.17828  | 0.0736012 |  0.0168094 |
 
-Our team's objective is two-fold: 1) determine whether the heading/content is related/unrelated (syntax/semantics); and 2) as mentioned previously, determine whether the heading/content discusses/agree/disagrees (sentiment). Moreover, we will test whether traditional NLP features can improve upon the low accuracies in the "agree" and "disagree" stances of previous participants.
-
-_Sources_:
-1) http://www.fakenewschallenge.org/
-2) https://github.com/FakeNewsChallenge/fnc-1
-
 ## Methodology
 
-Feature engineering, including:
+Our team's objective is two-fold: 1) determine whether the heading/content is related/unrelated (syntax/semantics); and 2) as mentioned previously, determine whether the heading/content discusses/agree/disagrees (sentiment). Moreover, we will test whether traditional NLP features can improve upon the low accuracies in the "agree" and "disagree" stances of previous participants.
 
+The related/unrelated classification task is expected to be much easier and is less relevant for detecting fake news, so it is given less weight in the evaluation metric. The Stance Detection task (classify as agrees, disagrees or discuss) is both more difficult and more relevant to fake news detection, so is to be given much more weight in the evaluation metric.
+
+
+We intend to attack the problem using the following features:
+- overlapping words between the headline and body
+- LSA/SVD
+- TF-IDF, cosine similarity between the headline and body
+- n-gram count
 - possibly use semantic role labeling to generate triples of (agent (subject), verb, patient (object))
 - dependency relations/syntactic features
 - vector features
-- TF-IDF
-- LSA/SVD
-- ??? 
-
-- Python/spaCy/gensim
-
-## Related works
-As part of our initial background research, we relied upon two previous related works:
-
-1)  William Ferreira, Andreas Vlachos. Emergent: a novel data-set for stance classification. http://aclweb.org/anthology/N/N16/N16-1138.pdf, June 2016.
-
-2)  Benjamin Riedel, Isabelle Augenstein, Georgios P. Spithourakis, Sebastian Riedel. A simple but tough-to-beat baseline for the Fake News Challenge stance detection task. https://arxiv.org/abs/1707.03264, July 2017.
-
-## Evaluation plan
 
 ### Baseline
 
 FNC-1 provides a [baseline model](https://github.com/FakeNewsChallenge/fnc-1-baseline) consisting of hand-engineered features, including n-gram co-occurrence counts between the headline and article and indicator features for polarity and refutation, to train a gradient-boosting classifier. The baseline accuracy is 79.53%.
 
 The baseline implementation performs well separating related stances from the rest, but rather poorly when differentiating between agree, disagree, and discuss. Our goal is to improve upon this area of weakness while still achieving the baseline.
+
+## References
+
+[1] FNC-1 Dataset. https://github.com/FakeNewsChallenge/fnc-1
+[2] William Ferreira and Andreas Vlachos. Emergent: a novel data-set for stance classiﬁcation. In Proceedings of NAACL: Human Language Technologies. Association for Computational Linguistics, 2016.
