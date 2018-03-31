@@ -8,16 +8,19 @@
 
 ## Problem description
 
-The [Fake News Challenge](http://www.fakenewschallenge.org/) is a competition held in 2017, with the explicit goal to explore how current techniques in natural language processing (NLP) and machine learning (ML) can be utilized to combat problem of fake news. Stage 1 of the Fake News Challenge ("FNC-1") focuses on the first step in detecting fake news -- the task of **stance detection**. Stance detection commonly involves estimating the relative perspective (or stance), of two pieces of text relative to a given topic, claim, or issue. FNC-1 specifically extends the stance detection work of Ferreira and Vlachos (2016). Here, the task is to estimate the stance of a body text from a news article relative to a given headline and categorize it into one of four categories: agree, disagree, discusses, or unrelated.
+The [Fake News Challenge](http://www.fakenewschallenge.org/) is a competition held in 2017. The explicit goal of the challenge was to explore how current techniques in natural language processing (NLP) and machine learning (ML) can be utilized to combat the fake news problem.
+
+Stage 1 of the Fake News Challenge ("FNC-1") focuses on the first step in detecting fake news -- the task of **stance detection**. Stance detection commonly involves estimating the relative perspective (or stance) of two pieces of text relative to a given topic, claim, or issue. FNC-1 specifically extends the stance detection work of Ferreira and Vlachos (2016). Here, the task is to estimate the stance of a body text from a news article relative to a given headline and categorize it into one of four categories: agree, disagree, discusses, or unrelated.
 
 <p align="center"><img src="https://github.com/amallia/FakeNewsChallenge/blob/master/report/images/fnc-eval.png" ></p>
 
-Over the course of the challenge, 50 competing teams designed and developed NLP/ML systems for fake news detection. All of the top scoring systems at least partially relied on neural network architectures for classification, based on a variety of vector transformations of the input data ()
-. Due to the uneven distribution of categories in the training data, top scoring systems performed very well on instances that were "unrelated", but often failed to correctly identify instances of "agree" and "disagree". We are hoping to overcome this limitation of deep learning models by using a number of hand-crafted NLP features specifically designed to capture semantic roles and syntactic relationships as input to a traditional classifier. In addition, our objective is to outperform the official (neural) baseline model released by the FNC-1 organizers.
+Over the course of the challenge, 50 competing teams designed and developed NLP/ML systems for fake news detection. All of the top scoring systems at least partially relied on neural network architectures for classification, based on a variety of vector transformations of the input data (Pan et al., 2017; Hanselowski et al., 2017; Riedel et al., 2017).
+
+Due to the uneven distribution of categories in the training data, top scoring systems performed very well on instances that were "unrelated", but often failed to correctly identify instances of "agree" and "disagree". We are hoping to overcome this limitation of deep learning models by using a number of hand-crafted NLP features specifically designed to capture semantic roles and syntactic relationships as input to a traditional classifier. In addition, our objective is to outperform the official (neural) baseline model released by the FNC-1 organizers.
 
 ## Dataset
 
-The original [FNC-1 dataset and evaluation scripts](https://github.com/FakeNewsChallenge/fakenewschallenge.github.io) are publicly available. The dataset consist of 49,972 labeled article headline and body pairs, which are derived from the Emergent Project (Silverman, 2015).
+The original [FNC-1 dataset and evaluation script](https://github.com/FakeNewsChallenge/fakenewschallenge.github.io) are publicly available online. The dataset consist of 49,972 labeled article headline and body pairs, which are derived from the Emergent Project (Silverman, 2015).
 
 A sample of the data looks like this:
 
@@ -65,3 +68,5 @@ Among others, we are generally hoping to evaluate at least the following feature
 - Andreas Hanselowski, Avinesh PVS, Benjamin Schiller, and Felix Caspelherr. 2017. Description of the system developed by Team Athene in the FNC-1.
 
 - Benjamin Riedel, Isabelle Augenstein, Georgios P. Spithourakis, and Sebastian Riedel. A simple but tough-to-beat baseline for the Fake News Challenge stance detection task. 2017. https://arxiv.org/abs/1707.03264.
+
+- Craig Silverman. 2015. Lies, Damn Lies and Viral Content. http://towcenter.org/research/lies-damn-lies-and-viral-content/, February.
