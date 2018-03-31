@@ -3,7 +3,7 @@
 ### Team
 
 - Melanie Tosik (mt3685), `tosik@nyu.edu`
-- Antonio Mallia (), `me@antoniomallia.it`
+- Antonio Mallia (am8949), `me@antoniomallia.it`
 - Kedar Gangopadhyay (), `kedarg@nyu.edu`
 
 ## Problem description
