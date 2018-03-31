@@ -35,9 +35,9 @@ Police find mass graves with at least '15 bodies' near Mexico town where 43 stud
 
 The distribution of the output labels is overwhelmingly "unrelated" to the headline, as shown below:
 
-|   rows  |   unrelated |   discuss |     agree |   disagree |
-|--------:|------------:|----------:|----------:|-----------:|
-|  49,972 |    0.73131  |  0.17828  | 0.0736012 |  0.0168094 |
+| rows   | unrelated | discuss | agree     | disagree  |
+|-------:|----------:|--------:|----------:|----------:|
+| 49,972 |   0.73131 | 0.17828 | 0.0736012 | 0.0168094 |
 
 ### Baseline
 
