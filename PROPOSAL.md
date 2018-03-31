@@ -73,4 +73,4 @@ We plan to evaluate at least the following features, among others, over the cour
 
 - Benjamin Riedel, Isabelle Augenstein, Georgios P. Spithourakis, and Sebastian Riedel. A simple but tough-to-beat baseline for the Fake News Challenge stance detection task. 2017. https://arxiv.org/abs/1707.03264.
 
-- Craig Silverman. 2015. Lies, Damn Lies and Viral Content. http://towcenter.org/research/lies-damn-lies-and-viral-content/, February.
+- Craig Silverman. 2015. Lies, Damn Lies and Viral Content. https://towcenter.org/research/lies-damn-lies-and-viral-content/.
