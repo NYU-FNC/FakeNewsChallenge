@@ -13,7 +13,7 @@ The [Fake News Challenge](http://www.fakenewschallenge.org/) is an ongoing compe
 Stage 1 of the Fake News Challenge ("FNC-1") focuses on the first step in detecting fake news, the task of **stance detection**. Stance detection commonly involves estimating the relative perspective (or stance) of two pieces of text relative to a given topic, claim, or issue. More specifically, FNC-1 extends the stance detection work of Ferreira and Vlachos (2016). Here, the task is to estimate the stance of a body text from a news article relative to a given headline and categorize it into one of four categories: agree, disagree, discusses, or unrelated.
 
 <p align="center">
-  <b>Schematic scoring process</b><br><br>
+  <b>Schematic scoring process</b><br>
   <img src="https://github.com/amallia/FakeNewsChallenge/blob/master/report/images/fnc-eval.png"><br>
   <small>Source: http://www.fakenewschallenge.org/</small>
 </p>
