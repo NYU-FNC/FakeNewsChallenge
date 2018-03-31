@@ -14,7 +14,7 @@ Stage 1 of the Fake News Challenge ("FNC-1") focuses on the first step in detect
 
 <p align="center">
   <b>Schematic scoring process</b><br>
-  <img src="https://github.com/amallia/FakeNewsChallenge/blob/master/report/images/fnc-eval.png"><br>
+  <img src="http://www.fakenewschallenge.org/assets/img/fnc-eval.png"><br>
   <small>Source: http://www.fakenewschallenge.org/</small>
 </p>
 
