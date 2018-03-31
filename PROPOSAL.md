@@ -4,7 +4,7 @@
 
 - Melanie Tosik (mt3685), `tosik@nyu.edu`
 - Antonio Mallia (am8949), `me@antoniomallia.it`
-- Kedar Gangopadhyay (), `kedarg@nyu.edu`
+- Kedar Gangopadhyay (skg2016), `kedarg@nyu.edu`
 
 ## Problem description
 
@@ -43,33 +43,33 @@ The distribution of the output labels is overwhelmingly "unrelated" to the headl
 
 FNC-1 provides a [baseline model](https://github.com/FakeNewsChallenge/fnc-1-baseline) based of hand-engineered features (such as n-gram co-occurrence counts between the headline and article and indicator features for polarity and refutation) and a gradient-boosting classifier. Based on this model, the baseline accuracy was 79.53%.
 
-As mentioned previously, the baseline implementation performs well in separating related stances from unrelated ones, but rather poorly when differentiating between "agree", "disagree", and "discuss". Our goal is to improve performance on this part while still achieving baseline accuracy.
+As mentioned previously, the baseline implementation performs well in separating related stances from unrelated ones, but rather poorly when differentiating between "agree", "disagree", and "discuss". Our goal is to improve performance on this part while still achieving the baseline accuracy.
 
 ## Methodology
 
-Stance detection is a 2-fold task. First, the system needs to determine whether the body/heading pair is "related" or "unrelated". If the example pair is found to be "related", the system further needs to assign a category of "agree", "disagree", or "discuss". 
+Stance detection is a two-fold task. First, the system needs to determine whether the body/heading pair is "related" or "unrelated". If the example pair is found to be "related", the system further needs to assign a category of "agree", "disagree", or "discuss". 
 
-For the first part, we are planning to incorporate features that capture specific syntactic and semantic relationships between the heading and the sentences in the main body text. It might also prove useful to convert the unstructured text into structured tuples or triples according to their semantic roles. This initial classification is generally expected to be easier and less relevant for detecting fake news, and is therefore given less weight in the evaluation metric.
+For the first part, we plan to incorporate features that capture specific syntactic and semantic relationships between the heading and the sentences in the main body text. It might also prove useful to convert the unstructured text into structured tuples or triples according to their semantic roles. This initial classification is generally expected to be easier and less relevant for detecting fake news, and is therefore given less weight in the evaluation metric.
 
-The second part of the problem (classification into "agree/"disagree"/"discuss") is more difficult and relevant to fake news detection, thereby given more weight in the evaluation metric. For this step, we believe that sentiment scores and word embeddings will be useful features for the model to learn to distinguish between the fine-grained categories. 
+The second part of the problem (classification into "agree"/"disagree"/"discuss") is more difficult and relevant to fake news detection, thereby given more weight in the evaluation metric. For this step, we believe that sentiment scores and word embeddings will be useful features for the model to learn to distinguish between the fine-grained categories. 
 
-Among others, we are hoping to evaluate at least the following features over the course of the project:
+We plan to evaluate at least the following features, among others, over the course of the project:
 
 - co-occurrence counts
 - syntactic dependency relations
 - sentiment scores
-- word embeddings, e.g. Glove
+- word embeddings, e.g. GloVe
 - cosine similarity between TF-IDF vectors
 - semantic role labels
-- etc.
+- others
 
 ## References
 
-- William Ferreira and Andreas Vlachos. Emergent: a novel data-set for stance classification. In Proceedings of NAACL: Human Language Technologies. Association for Computational Linguistics, 2016.
-
-- Yuxi Pan, Doug Sibley, and Sean Baird. Talos Targets Disinformation with Fake News Challenge Victory. 2017. https://blog.talosintelligence.com/2017/06/talos-fake-news-challenge.html.
+- William Ferreira and Andreas Vlachos. Emergent: a novel data-set for stance classification. In Proceedings of NAACL: Human Language Technologies. Association for Computational Linguistics, 2016. http://aclweb.org/anthology/N/N16/N16-1138.pdf
 
 - Andreas Hanselowski, Avinesh PVS, Benjamin Schiller, and Felix Caspelherr. 2017. Description of the system developed by Team Athene in the FNC-1.
+
+- Yuxi Pan, Doug Sibley, and Sean Baird. Talos Targets Disinformation with Fake News Challenge Victory. 2017. https://blog.talosintelligence.com/2017/06/talos-fake-news-challenge.html.
 
 - Benjamin Riedel, Isabelle Augenstein, Georgios P. Spithourakis, and Sebastian Riedel. A simple but tough-to-beat baseline for the Fake News Challenge stance detection task. 2017. https://arxiv.org/abs/1707.03264.
 
