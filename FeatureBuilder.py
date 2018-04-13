@@ -15,9 +15,12 @@ def main():
                         help='Output file.')
     args = parser.parse_args()
 
-    stances = pd.read_csv(args.stances_dataset, header=None)
-    bodies = pd.read_csv(args.bodies_dataset, header=None)
+    stances = pd.read_csv(args.stances_dataset)
+    bodies = pd.read_csv(args.bodies_dataset)
 
+    print(stances.head())
+    print(bodies.head())
+    print(stances.merge(bodies, on="Body ID"))
 
 
 if __name__ == '__main__':
