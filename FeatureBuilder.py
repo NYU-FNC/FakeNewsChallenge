@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import yaml
 import pandas as pd
 import numpy as np
 
@@ -14,16 +15,15 @@ def main():
 
     parser = argparse.ArgumentParser(
         description="Feature Builder")
-    parser.add_argument("stances_dataset", metavar="stances_dataset",
-                        help="Stances dataset.")
-    parser.add_argument("bodies_dataset", metavar="bodies_dataset",
-                        help="Bodies dataset.")
-    parser.add_argument("output_file", metavar="output_file",
-                        help="Output file.")
+    parser.add_argument("config_file", metavar="config_file",
+                        help="Configuration file`.")
     args = parser.parse_args()
 
-    df_stances = pd.read_csv(args.stances_dataset)
-    df_bodies = pd.read_csv(args.bodies_dataset)
+    with open(args.config_file, 'r') as config_file:
+        cfg = yaml.load(config_file)
+
+    df_stances = pd.read_csv(cfg["stances_dataset"])
+    df_bodies = pd.read_csv(cfg["bodies_dataset"])
 
     df = pd.merge(df_stances, df_bodies, on="Body ID", how="left")
 
