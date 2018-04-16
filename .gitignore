@@ -1,0 +1,4 @@
+data/*.raw.txt
+data/*.pkl
+*.model
+

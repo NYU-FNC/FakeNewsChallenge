@@ -1,5 +1,11 @@
-stances_dataset: ./fnc-1/train_stances.csv
-bodies_dataset: ./fnc-1/train_bodies.csv
-test_stances_dataset: ./fnc-1/competition_test_stances.csv
-test_bodies_dataset: ./fnc-1/competition_test_bodies.csv
+train_stances: ./fnc-1/train_stances.csv
+train_bodies: ./fnc-1/train_bodies.csv
+train_feats: ./data/train_feats.csv
+
+test_stances: ./fnc-1/competition_test_stances.csv
+test_bodies: ./fnc-1/competition_test_bodies.csv
+test_feats: ./data/competition_test_feats.csv
+
 output_file: ./competition_test.out
+vectorizer: ./data/vectorizer.pkl
+model_dump: ./data/model_dump.raw.txt

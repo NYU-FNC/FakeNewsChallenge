@@ -1,5 +1,0 @@
-stances_dataset: ./fnc-1/train_stances.csv
-bodies_dataset: ./fnc-1/train_bodies.csv
-test_stances_dataset: ./fnc-1/test_stances.csv
-test_bodies_dataset: ./fnc-1/test_bodies.csv
-output_file: ./test.out
