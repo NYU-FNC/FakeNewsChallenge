@@ -6,7 +6,6 @@ import yaml
 import pandas as pd
 import xgboost as xgb
 
-from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelEncoder
 
 from score import report_score
@@ -49,7 +48,6 @@ def train_and_test(train_df, test_df, features):
     # Get accuracy score on test
     y_pred = pred.argmax(axis=1)
     report_score(y_test, y_pred)
-    print(accuracy_score(y_test, y_pred))
 
     # # Decode prediction probabilities to string labels
     # y_pred_labels = le.classes_[y_pred]
@@ -89,8 +87,8 @@ def main():
     # List of features to use
     features = [
         "hamming_distance",
-        # "stance_polarity",
-        # "body_polarity",
+        "stance_polarity",
+        "body_polarity",
     ]
 
     # Train and test classifier

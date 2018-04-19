@@ -49,13 +49,13 @@ def build_features(split, config):
 
         # Get Hamming distance between stance and body vectors
         dist = hamming(stance.toarray(), body.toarray())
-        # stance_polarity = TextBlob(row["Headline"]).sentiment.polarity
-        # body_polarity = TextBlob(row["articleBody"]).sentiment.polarity
-        data.append((dist, row["Stance"]))
+        stance_polarity = TextBlob(row["Headline"]).sentiment.polarity
+        body_polarity = TextBlob(row["articleBody"]).sentiment.polarity
+        data.append((dist, stance_polarity, body_polarity, row["Stance"]))
 
     # Write training data to feature file
     df = pd.DataFrame(
-        data, columns=["hamming_distance", "label"])
+        data, columns=["hamming_distance", "stance_polarity", "body_polarity", "label"])
     df.to_csv(config["{0}_feats".format(split)], index=False)
 
     return df
