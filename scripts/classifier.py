@@ -88,6 +88,7 @@ def main():
         "hamming_distance",
         "stance_polarity",
         "body_polarity",
+        "word_overlap",
         "similarity"
     ]
 

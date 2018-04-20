@@ -13,6 +13,14 @@ from sklearn.feature_extraction.text import CountVectorizer
 nlp = spacy.load('en', disable=["parser", "tagger", "ner"])
 
 
+def get_word_overlap(headline, body):
+    headline = set(w.lemma_ for w in nlp(headline))
+    body = set(w.lemma_ for w in nlp(body))
+    intersection = len(headline.intersection(body))
+    union = len(headline.union(body))
+    return intersection / union
+
+
 def build_features(split, config):
     """
     Build features for train|test split
@@ -57,12 +65,12 @@ def build_features(split, config):
         stance_polarity = TextBlob(row["Headline"]).sentiment.polarity
         body_polarity = TextBlob(row["articleBody"]).sentiment.polarity
         similarity = nlp(row["Headline"]).similarity(nlp(row["articleBody"]))
-
-        data.append((dist, stance_polarity, body_polarity, similarity, row["Stance"]))
+        word_overlap = get_word_overlap(row["Headline"], row["articleBody"])
+        data.append((dist, stance_polarity, body_polarity, word_overlap, similarity, row["Stance"]))
 
     # Write training data to feature file
     df = pd.DataFrame(
-        data, columns=["hamming_distance", "stance_polarity", "body_polarity", "similarity", "label"])
+        data, columns=["hamming_distance", "stance_polarity", "body_polarity", "word_overlap", "similarity", "label"])
     df.to_csv(config["{0}_feats".format(split)], index=False)
 
     return df
