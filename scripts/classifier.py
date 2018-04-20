@@ -84,12 +84,8 @@ def main():
     le.fit(["unrelated", "agree", "disagree", "discuss"])
 
     # List of features to use
-    features = [
-        "hamming_distance",
-        "stance_polarity",
-        "body_polarity",
-        "similarity"
-    ]
+    assert(list(train_df) == list(test_df))
+    features = list(train_df)
 
     # Train and test classifier
     train_and_test(train_df, test_df, features)
