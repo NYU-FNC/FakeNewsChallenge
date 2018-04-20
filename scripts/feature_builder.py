@@ -9,7 +9,9 @@ from textblob import TextBlob
 from scipy.spatial.distance import hamming
 from sklearn.feature_extraction.text import CountVectorizer
 
-nlp = spacy.load('en')
+# nlp = spacy.load('en')
+nlp = spacy.load('en', disable=["parser", "tagger", "ner"])
+
 
 def build_features(split, config):
     """
@@ -64,6 +66,4 @@ def build_features(split, config):
     df.to_csv(config["{0}_feats".format(split)], index=False)
 
     return df
-
-
 
