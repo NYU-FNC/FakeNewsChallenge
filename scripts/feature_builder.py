@@ -126,11 +126,13 @@ def build_features(split, config):
     for idx, row in df.iterrows():
         # Build features
         fb = FeatureBuilder(row["Headline"], row["articleBody"])
-        features.append(fb.feats)
         # Append label
-        features.append(row["Stance"])
+        features.append(fb.feats + [row["Stance"]])
         # Get list of features
         cols = fb.use
+
+    # Append label
+    cols += ["label"]
 
     # Write training data to feature file
     df = pd.DataFrame(features, columns=cols)
