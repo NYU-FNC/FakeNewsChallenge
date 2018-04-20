@@ -7,10 +7,11 @@ import spacy
 
 from scipy.spatial.distance import hamming
 from sklearn.feature_extraction.text import CountVectorizer
+from textblob import TextBlob
 
 # nlp = spacy.load("en")
 nlp = spacy.load(
-    "en",
+    "en_core_web_lg",
     disable=[
         "parser",
         "tagger",
@@ -60,13 +61,13 @@ class FeatureBuilder:
         """
         Sentiment polarity of stance
         """
-        self.feats.append(self.nlpstance.sentiment)
+        self.feats.append(TextBlob(self.stance).sentiment.polarity)
 
     def body_polarity(self):
         """
         Sentiment polarity of body
         """
-        self.feats.append(self.nlpbody.sentiment)
+        self.feats.append(TextBlob(self.body).sentiment.polarity)
 
     def doc_similarity(self):
         """
