@@ -2,11 +2,14 @@ import pickle
 import sys
 
 import pandas as pd
+
+import spacy
+
 from textblob import TextBlob
 from scipy.spatial.distance import hamming
 from sklearn.feature_extraction.text import CountVectorizer
 
-
+nlp = spacy.load('en')
 
 def build_features(split, config):
     """
@@ -51,11 +54,13 @@ def build_features(split, config):
         dist = hamming(stance.toarray(), body.toarray())
         stance_polarity = TextBlob(row["Headline"]).sentiment.polarity
         body_polarity = TextBlob(row["articleBody"]).sentiment.polarity
-        data.append((dist, stance_polarity, body_polarity, row["Stance"]))
+        similarity = nlp(row["Headline"]).similarity(nlp(row["articleBody"]))
+
+        data.append((dist, stance_polarity, body_polarity, similarity, row["Stance"]))
 
     # Write training data to feature file
     df = pd.DataFrame(
-        data, columns=["hamming_distance", "stance_polarity", "body_polarity", "label"])
+        data, columns=["hamming_distance", "stance_polarity", "body_polarity", "similarity", "label"])
     df.to_csv(config["{0}_feats".format(split)], index=False)
 
     return df

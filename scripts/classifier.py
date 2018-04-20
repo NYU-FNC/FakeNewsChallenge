@@ -33,12 +33,11 @@ def train_and_test(train_df, test_df, features):
     param = {
         "objective": "multi:softprob",
         "num_class": 4,
-        "silent": 1,
     }
     num_round = 20  # Set number of training iterations
 
     # Train model, dump feature map, and save model to file
-    bst = xgb.train(param, dtrain, num_round)
+    bst = xgb.train(param, dtrain, num_round, verbose_eval=config["verbose"])
     bst.dump_model(config["model_dump"])
     # bst.save_model("0001.model")
 
@@ -89,6 +88,7 @@ def main():
         "hamming_distance",
         "stance_polarity",
         "body_polarity",
+        "similarity"
     ]
 
     # Train and test classifier

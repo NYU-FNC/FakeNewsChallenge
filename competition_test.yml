@@ -9,3 +9,5 @@ test_feats: ./data/competition_test_feats.csv
 output_file: ./competition_test.out
 vectorizer: ./data/vectorizer.pkl
 model_dump: ./data/model_dump.raw.txt
+
+verbose: true
