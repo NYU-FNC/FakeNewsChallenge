@@ -17,6 +17,7 @@ def train_and_test(train_df, test_df, features):
     Train and test XGBoost classifier
     """
     # Classifier input data
+    features.remove("label")
     X_train = train_df.as_matrix(columns=features)
     y_train = le.transform(train_df["label"].values)
     X_test = test_df.as_matrix(columns=features)
