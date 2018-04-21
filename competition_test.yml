@@ -7,7 +7,8 @@ test_bodies: ./fnc-1/competition_test_bodies.csv
 test_feats: ./data/competition_test_feats.csv
 
 output_file: ./competition_test.out
-vectorizer: ./data/vectorizer.pkl
+count_vec: ./data/count_vectorizer.pkl
+tfidf_vec: ./data/tfidf_vectorizer.pkl
 model_dump: ./data/model_dump.raw.txt
 
 verbose: true

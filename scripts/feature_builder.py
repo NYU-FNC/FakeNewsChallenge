@@ -5,11 +5,12 @@ import sys
 import pandas as pd
 import spacy
 
-from scipy.spatial.distance import hamming
-from sklearn.feature_extraction.text import CountVectorizer
+from pycorenlp import StanfordCoreNLP
+from scipy.spatial.distance import hamming, cosine
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from textblob import TextBlob
 
-# nlp = spacy.load("en")
+# spaCy
 nlp = spacy.load(
     "en_core_web_lg",
     disable=[
@@ -17,6 +18,9 @@ nlp = spacy.load(
         "tagger",
         "ner",
     ])
+
+# CoreNLP
+# corenlp = StanfordCoreNLP("http://localhost:9000")
 
 
 class FeatureBuilder:
@@ -39,6 +43,7 @@ class FeatureBuilder:
             "body_polarity",
             "doc_similarity",
             "word_overlap",
+            "tfidf_cosine",
         ]
 
         # Build features
@@ -49,8 +54,8 @@ class FeatureBuilder:
         """
         Hamming distance between stance/body binary count vectors
         """
-        stancevec = vectorizer.transform([self.stance])
-        bodyvec = vectorizer.transform([self.body])
+        stancevec = count_vec.transform([self.stance])
+        bodyvec = count_vec.transform([self.body])
         assert(stancevec.shape == bodyvec.shape)
 
         # Compute Hamming distance
@@ -59,15 +64,42 @@ class FeatureBuilder:
 
     def stance_polarity(self):
         """
-        Sentiment polarity of stance
+        Average sentiment polarity of stance
         """
-        self.feats.append(TextBlob(self.stance).sentiment.polarity)
+        # res = corenlp.annotate(
+        #     self.stance,
+        #     properties={
+        #         "annotators": "sentiment",
+        #         "outputFormat": "json",
+        #         "timeout": 10000000,
+        #     })
+        # # Average
+        # avg = 0.0
+
+        # for s in res["sentences"]:
+        #     avg += float(s["sentimentValue"])
+        # avg = avg / len(res["sentences"])
+        # self.feats.append(avg)
+        self.feats.append(0.0)
 
     def body_polarity(self):
         """
-        Sentiment polarity of body
+        Average sentiment polarity of body
         """
-        self.feats.append(TextBlob(self.body).sentiment.polarity)
+        # res = corenlp.annotate(
+        #     self.body,
+        #     properties={
+        #         "annotators": "sentiment",
+        #         "outputFormat": "json",
+        #         "timeout": 10000000,
+        #     })
+        # # Average
+        # avg = 0.0
+        # for s in res["sentences"]:
+        #     avg += float(s["sentimentValue"])
+        # avg = avg / len(res["sentences"])
+        # self.feats.append(avg)
+        self.feats.append(0.0)
 
     def doc_similarity(self):
         """
@@ -86,6 +118,18 @@ class FeatureBuilder:
         union = len(sset.union(bset))
         self.feats.append(intersec / union)
 
+    def tfidf_cosine(self):
+        """
+        Cosine similarity between stance/body TF-IDF vectors
+        """
+        stancevec = tfidf_vec.transform([self.stance])
+        bodyvec = tfidf_vec.transform([self.body])
+        assert(stancevec.shape == bodyvec.shape)
+
+        # Compute cosine similarity
+        dist = cosine(stancevec.toarray(), bodyvec.toarray())
+        self.feats.append(dist)
+
 
 def build_features(split, config):
     """
@@ -102,21 +146,32 @@ def build_features(split, config):
     # Merge stances and bodies
     df = pd.merge(df_stances, df_bodies, on="Body ID", how="left")
 
-    # Train or load vectorizer
-    global vectorizer
-    if os.path.isfile(config["vectorizer"]):
+    # Load or initialize CountVectorizer()
+    global count_vec
+    if os.path.isfile(config["count_vec"]):
         # Load vectorizer object from serialized file
-        vectorizer = pickle.load(open(config["vectorizer"], "rb"))
+        count_vec = pickle.load(open(config["count_vec"], "rb"))
     else:
-        # Initialize binary count vectorizer
-        vectorizer = CountVectorizer(
+        count_vec = CountVectorizer(
             binary=True,
             # stop_words="english",
         )
         # Fit count vectorizer to all stance and body text
-        vectorizer.fit(df["Headline"].tolist() + df["articleBody"].tolist())
+        count_vec.fit(df["Headline"].tolist() + df["articleBody"].tolist())
         # Write vectorizer object to serialized file
-        pickle.dump(vectorizer, open(config["vectorizer"], "wb"))
+        pickle.dump(count_vec, open(config["count_vec"], "wb"))
+
+    # Load or initialize TfidfVectorizer()
+    global tfidf_vec
+    if os.path.isfile(config["tfidf_vec"]):
+        # Load vectorizer object from serialized file
+        tfidf_vec = pickle.load(open(config["tfidf_vec"], "rb"))
+    else:
+        tfidf_vec = TfidfVectorizer()
+        # Fit TF-IDF vectorizer to all stance and body text
+        tfidf_vec.fit(df["Headline"].tolist() + df["articleBody"].tolist())
+        # Write vectorizer object to serialized file
+        pickle.dump(tfidf_vec, open(config["tfidf_vec"], "wb"))
 
     # List of list of features per stance/body pair
     features = []
