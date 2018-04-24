@@ -5,10 +5,11 @@ import sys
 import pandas as pd
 import spacy
 
-from pycorenlp import StanfordCoreNLP
+from tqdm import tqdm
+
+# from pycorenlp import StanfordCoreNLP
 from scipy.spatial.distance import hamming, cosine
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-from textblob import TextBlob
 
 # spaCy
 nlp = spacy.load(
@@ -179,13 +180,15 @@ def build_features(split, config):
     cols = []
 
     # Process each row in merged data frame
-    for idx, row in df.iterrows():
+    for idx, row in tqdm(df.iterrows(), total=len(df.index)):
         # Build features
         fb = FeatureBuilder(row["Headline"], row["articleBody"])
         # Append label
         features.append(fb.feats + [row["Stance"]])
         # Get list of features
         cols = fb.use
+        # if idx == 100:
+        #     break
 
     # Append label
     cols += ["label"]
