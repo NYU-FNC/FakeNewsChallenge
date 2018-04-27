@@ -61,8 +61,6 @@ def main():
     original_labels = test_df.iloc[:, -1:]
 
     train_df_second = train_df[train_df.label != "unrelated"]
-    # TODO: FIX THIS
-    test_df_second = test_df[test_df.label != "unrelated"]
 
     # List of features to use
     assert(list(train_df) == list(test_df))
@@ -84,51 +82,58 @@ def main():
     dtest = xgb.DMatrix(X_test.as_matrix(), label=y_test)
 
     # Train and test classifier
-    model = train_and_test(dtrain)
-
-    # Get prediction probabilities per class
-
-    pred = model.predict(dtest)
-
-    # Get accuracy score on test
-    y_pred = pred.argmax(axis=1)
-
-    print(accuracy_score(y_test, y_pred))
-    report_score(y_test, y_pred)
-
-    X_test['label'] = y_pred
-    X_test['original_label'] = original_labels
-
-    new_test_df = pd.DataFrame(X_test)
-    new_test_df = new_test_df[new_test_df.label != 1]
-
-    new_test_df = new_test_df.drop(['label'], axis=1)
+    model_ru = train_and_test(dtrain)
 
     X_train, y_train = np.split(train_df_second, [-1], axis=1)
 
-    X_test, y_test = np.split(new_test_df, [-1], axis=1)
-    # Encode string labels
+    # # Encode string labels
     le = LabelEncoder()
-    le.fit(["agree", "disagree", "discuss", "unrelated"])
+    le.fit(["agree", "disagree", "discuss"])
     y_train = le.transform(y_train.as_matrix())
-    y_test = le.transform(y_test.as_matrix())
 
     dtrain = xgb.DMatrix(X_train.as_matrix(), label=y_train)
+
+    # # Train and test classifier
+    model_add = train_and_test(dtrain)
+
+    # # Get prediction probabilities per class
+
+    pred = model_ru.predict(dtest)
+
+    # # Get accuracy score on test
+    pred_ru = pred.argmax(axis=1)
+
+    print(accuracy_score(y_test, pred_ru))
+
+    X_test['label_ru'] = pred_ru
+
+    X_test = X_test[X_test.label_ru != 0]
+    X_test = X_test.drop(['label_ru'], axis=1)
+
+    _, y_test = np.split(train_df_second, [-1], axis=1)
+    le = LabelEncoder()
+    le.fit(["agree", "disagree", "discuss"])
+    y_test = le.transform(y_test.as_matrix())
+
     dtest = xgb.DMatrix(X_test.as_matrix(), label=y_test)
+    pred = model_add.predict(dtest)
 
-    # Train and test classifier
-    model = train_and_test(dtrain)
-
-    # Get prediction probabilities per class
-
-    pred = model.predict(dtest)
-
-    # Get accuracy score on test
     y_pred = pred.argmax(axis=1)
 
-    print(accuracy_score(y_test, y_pred))
+    final = []
+    i = 0
+    for idx, y in enumerate(pred_ru):
+        if y == 0:
+            final.append(y_pred[i])
+            i += 1
+        else:
+            final.append(3)
 
-    report_score(y_test, y_pred)
+    le = LabelEncoder()
+    le.fit(["agree", "disagree", "discuss", "unrelated"])
+    original_labels = le.transform(original_labels.as_matrix())
+
+    report_score(original_labels, final)
 
 
 if __name__ == '__main__':
