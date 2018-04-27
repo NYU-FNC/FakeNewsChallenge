@@ -2,3 +2,5 @@ data/*.raw.txt
 data/*.pkl
 *.model
 **/__pycache__/
+stanford-corenlp*
+
