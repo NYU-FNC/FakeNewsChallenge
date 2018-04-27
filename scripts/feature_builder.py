@@ -15,13 +15,8 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 nlp = spacy.load(
     "en_core_web_lg",
     disable=[
-        "parser",
-        "tagger",
         "ner",
     ])
-
-# CoreNLP
-# corenlp = StanfordCoreNLP("http://localhost:9000")
 
 
 class FeatureBuilder:
@@ -44,6 +39,8 @@ class FeatureBuilder:
             "body_polarity",
             "doc_similarity",
             "word_overlap",
+            "dep_subject_overlap",
+            "dep_object_overlap",
             "tfidf_cosine",
         ]
 
@@ -118,6 +115,30 @@ class FeatureBuilder:
         intersec = len(sset.intersection(bset))
         union = len(sset.union(bset))
         self.feats.append(intersec / union)
+
+    def dep_subject_overlap(self):
+        """
+        Subject overlap between stance/body spaCy subjects (binary)
+        """
+        SUBJECTS = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]
+
+        stance_subjects = set([tok for tok in self.nlpstance if tok.dep_ in SUBJECTS])
+        body_subjects = set([tok for tok in self.nlpbody if tok.dep_ in SUBJECTS])
+
+        if (len(stance_subjects.intersection(body_subjects)) > 0):
+            self.feats.append(1.0)
+
+    def dep_object_overlap(self):
+        """
+        Object overlap between stance/body spaCy objects (binary)
+        """
+        OBJECTS = ["dobj", "dative", "attr", "oprd"]
+
+        stance_objects = set([tok for tok in self.nlpstance if tok.dep_ in OBJECTS])
+        body_objects = set([tok for tok in self.nlpbody if tok.dep_ in OBJECTS])
+
+        if (len(stance_objects.intersection(body_objects)) > 0):
+            self.feats.append(1.0)
 
     def tfidf_cosine(self):
         """
