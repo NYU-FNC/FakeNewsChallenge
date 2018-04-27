@@ -67,7 +67,7 @@ def main():
             continue
 
         # Add new column for sentiment score
-        df["sentiment_score"] = 0
+        df["sentiment_score"] = 0.0
 
         for idx, row in df.iterrows():
 
@@ -81,7 +81,10 @@ def main():
             cnt = 0
 
             # Load CoreNLP result as JSON
-            r_json = json.loads(r)
+            try:
+                r_json = json.loads(r)
+            except Exception:
+                continue
 
             for sent in r_json:
                 """
@@ -102,7 +105,7 @@ def main():
                 print(idx)
 
         # Write output file
-        df.to_csv(file[:-3] + "sentiment" + ".csv")
+        df.to_csv(path.join(config["data_dir"], file[:-3] + "sentiment" + ".csv"))
 
     # This is important, otherwise CoreNLP will keep consuming memory
     nlp.close()
