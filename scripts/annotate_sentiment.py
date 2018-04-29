@@ -52,6 +52,13 @@ def main():
         if not file.endswith(".csv"):
             continue
 
+        # Get .sentiment output file path
+        output_fp = path.join(config["data_dir"], file[:-3] + "sentiment" + ".csv")
+
+        # Skip if .sentiment output file already exists
+        if path.isfile(output_fp):
+            continue
+
         print("Annotating file \"{0}\"...".format(file))
 
         # Read dataframe
@@ -105,8 +112,8 @@ def main():
             if idx % 1000 == 0:
                 print(idx)
 
-        # Write output file
-        df.to_csv(path.join(config["data_dir"], file[:-3] + "sentiment" + ".csv"))
+        # Write .sentiment output file
+        df.to_csv(output_fp)
 
     # This is important, otherwise CoreNLP will keep consuming memory
     nlp.close()
