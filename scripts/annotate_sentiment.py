@@ -43,6 +43,7 @@ def main():
         "annotators": "sentiment",
         "pipelineLanguage": "en",
         "outputFormat": "json",
+        "timeout": 30000,
     }
 
     for file in listdir(config["data_dir"]):
