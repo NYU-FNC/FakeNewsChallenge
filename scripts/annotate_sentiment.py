@@ -14,11 +14,33 @@
 import argparse
 import yaml
 import json
+import signal
 
 import pandas as pd
 
 from os import listdir, path
 from stanfordcorenlp import StanfordCoreNLP
+
+
+class TimedOutExc(Exception):
+    pass
+
+
+def deadline(timeout, *args):
+    def decorate(f):
+        def handler(signum, frame):
+            raise TimedOutExc()
+
+        def new_f(*args):
+
+            signal.signal(signal.SIGALRM, handler)
+            signal.alarm(timeout)
+            return f(*args)
+            signal.alarm(0)
+
+        new_f.__name__ = f.__name__
+        return new_f
+    return decorate
 
 
 def main():
@@ -46,10 +68,14 @@ def main():
         "timeout": 30000,
     }
 
+    @deadline(30)
+    def annotate(text):
+        return nlp.annotate(text, properties=props)
+
     for file in listdir(config["data_dir"]):
 
         # Skip data files that are not CSV files
-        if not file.endswith(".csv"):
+        if not file.endswith(".csv") or file.endswith(".sentiment.csv"):
             continue
 
         # Get .sentiment output file path
@@ -80,10 +106,10 @@ def main():
         for idx, row in df.iterrows():
 
             # Annotate text
-            r = nlp.annotate(
-                row[text_col],
-                properties=props,
-            )
+            try:
+                r = annotate(row[text_col])
+            except TimedOutExc:
+                continue
 
             avg_score = 0.0
             cnt = 0
