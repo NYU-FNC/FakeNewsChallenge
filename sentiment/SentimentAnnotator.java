@@ -52,6 +52,8 @@ public class SentimentAnnotator {
 
                 // Read file                
                 Scanner scan = new Scanner(new File(file.getAbsolutePath()));
+                
+		System.out.println(file.getName());
 
                 // Output file path
                 String fp = file.getAbsolutePath() + ".sentiment.txt";
@@ -62,7 +64,7 @@ public class SentimentAnnotator {
                 while(scan.hasNextLine()){
 
                     cnt++;
-                    System.out.println(cnt);
+		    if ((cnt % 50) == 0) System.out.println(cnt);
 
                     // Get text
                     String text = scan.nextLine();
