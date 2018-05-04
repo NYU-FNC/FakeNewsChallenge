@@ -5,12 +5,12 @@ import sys
 import pandas as pd
 import spacy
 
-from tqdm import tqdm
-
+from gensim.models import KeyedVectors
+from spacy.en.word_sets import STOP_WORDS
 from scipy.spatial.distance import hamming, cosine
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from tqdm import tqdm
 
-from gensim.models import KeyedVectors
 
 # spaCy
 nlp = spacy.load(
@@ -80,8 +80,8 @@ class FeatureBuilder:
         """
         Word overlap
         """
-        sset = set(tok.lemma_ for tok in self.nlpstance)
-        bset = set(tok.lemma_ for tok in self.nlpbody)
+        sset = set(tok.lemma_ for tok in self.nlpstance if not tok.is_stop)
+        bset = set(tok.lemma_ for tok in self.nlpbody if not tok.is_stop)
         intersec = len(sset.intersection(bset))
         union = len(sset.union(bset))
         self.feats.append(intersec / union)
@@ -92,8 +92,10 @@ class FeatureBuilder:
         """
         SUBJECTS = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]
 
-        stance_subjects = set([tok for tok in self.nlpstance if tok.dep_ in SUBJECTS])
-        body_subjects = set([tok for tok in self.nlpbody if tok.dep_ in SUBJECTS])
+        stance_subjects = set([tok for tok in self.nlpstance if
+                               (tok.dep_ in SUBJECTS and not tok.is_stop)])
+        body_subjects = set([tok for tok in self.nlpbody if
+                             (tok.dep_ in SUBJECTS and not tok.is_stop)])
 
         if (len(stance_subjects.intersection(body_subjects)) > 0):
             self.feats.append(1.0)
@@ -104,8 +106,10 @@ class FeatureBuilder:
         """
         OBJECTS = ["dobj", "dative", "attr", "oprd"]
 
-        stance_objects = set([tok for tok in self.nlpstance if tok.dep_ in OBJECTS])
-        body_objects = set([tok for tok in self.nlpbody if tok.dep_ in OBJECTS])
+        stance_objects = set([tok for tok in self.nlpstance if
+                              (tok.dep_ in OBJECTS and not tok.is_stop)])
+        body_objects = set([tok for tok in self.nlpbody if
+                            (tok.dep_ in OBJECTS and not tok.is_stop)])
 
         if (len(stance_objects.intersection(body_objects)) > 0):
             self.feats.append(1.0)
@@ -147,12 +151,16 @@ def load_or_generate_vectorizer(vec, df):
         if vec == "count":
             vec = CountVectorizer(
                 binary=True,
-                stop_words="english",
+                min_df=2,
+                stop_words=STOP_WORDS,
             )
 
         # Generate TfidfVectorizer()
         if vec == "tfidf":
-            vec = TfidfVectorizer()
+            vec = TfidfVectorizer(
+                min_df=2,
+                stop_words=STOP_WORDS,
+            )
 
         # Fit count vectorizer to all stance and body text
         vec.fit(df["Headline"].tolist() + df["articleBody"].tolist())
