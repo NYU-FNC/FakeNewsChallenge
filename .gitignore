@@ -4,4 +4,5 @@ data/*.pkl
 **/__pycache__/
 stanford-corenlp*
 sentiment/data/
+GoogleNews-vectors-negative300.bin
 
