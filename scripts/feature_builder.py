@@ -14,6 +14,7 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 nlp = spacy.load(
     "en_core_web_lg",
     disable=[
+        "tagger",
         "parser",
         "ner",
     ])
@@ -142,10 +143,16 @@ def build_features(split, config):
     df_bodies = pd.read_csv(config["{0}_bodies".format(split)])
 
     # Add sentiment scores
-    df_stances["stances_sentiment"] = [
+    stances_scores = [
         float(s) for s in open(config["{0}_stances_sentiment".format(split)], "r")]
-    df_bodies["bodies_sentiment"] = [
+    bodies_scores = [
         float(s) for s in open(config["{0}_bodies_sentiment".format(split)], "r")]
+
+    assert(len(df_stances) == len(stances_scores))
+    assert(len(df_bodies) == len(bodies_scores))
+
+    df_stances["stances_sentiment"] = stances_scores
+    df_bodies["bodies_sentiment"] = bodies_scores
 
     # Merge stances and bodies
     df = pd.merge(df_stances, df_bodies, on="Body ID", how="left")
