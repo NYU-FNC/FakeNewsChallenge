@@ -123,14 +123,53 @@ class FeatureBuilder:
         self.feats.append(dist)
 
     def wmdistance(self):
+        """
+        Word movers distance (WMD)
+        """
         dist = w2v_model.wmdistance(self.stance, self.body)
         self.feats.append(dist)
 
 
-def build_features(split, phase, config):
+def load_or_generate_vectorizer(vec, df):
+    """
+    Load or generate vectorizer
+    """
+    if vec not in ("count", "tfidf"):
+        print("Error: {0} is not a valid vectorizer, use count|tfidf".format(vec))
+        sys.exit(1)
+
+    # Load vectorizer object from serialized file
+    if os.path.isfile(config[vec + "_vec"]):
+        vec = pickle.load(open(config[vec + "_vec"], "rb"))
+
+    else:
+        # Generate CountVectorizer()
+        if vec == "count":
+            vec = CountVectorizer(
+                binary=True,
+                stop_words="english",
+            )
+
+        # Generate TfidfVectorizer()
+        if vec == "tfidf":
+            vec = TfidfVectorizer()
+
+        # Fit count vectorizer to all stance and body text
+        vec.fit(df["Headline"].tolist() + df["articleBody"].tolist())
+
+        # Write vectorizer object to serialized file
+        pickle.dump(vec, open(config[vec + "_vec"], "wb"))
+
+    return vec
+
+
+def build_features(split, config_file):
     """
     Build features for train|test split
     """
+    global config
+    config = config_file
+
     global w2v_model
     w2v_model = KeyedVectors.load_word2vec_format(config["embeddings"], binary=True)
 
@@ -157,32 +196,13 @@ def build_features(split, phase, config):
     # Merge stances and bodies
     df = pd.merge(df_stances, df_bodies, on="Body ID", how="left")
 
-    # Load or initialize CountVectorizer()
+    # Get count vectorizer
     global count_vec
-    if os.path.isfile(config["count_vec"]):
-        # Load vectorizer object from serialized file
-        count_vec = pickle.load(open(config["count_vec"], "rb"))
-    else:
-        count_vec = CountVectorizer(
-            binary=True,
-            # stop_words="english",
-        )
-        # Fit count vectorizer to all stance and body text
-        count_vec.fit(df["Headline"].tolist() + df["articleBody"].tolist())
-        # Write vectorizer object to serialized file
-        pickle.dump(count_vec, open(config["count_vec"], "wb"))
+    count_vec = load_or_generate_vectorizer("count", df)
 
-    # Load or initialize TfidfVectorizer()
+    # Get TF-IDF vectorizer
     global tfidf_vec
-    if os.path.isfile(config["tfidf_vec"]):
-        # Load vectorizer object from serialized file
-        tfidf_vec = pickle.load(open(config["tfidf_vec"], "rb"))
-    else:
-        tfidf_vec = TfidfVectorizer()
-        # Fit TF-IDF vectorizer to all stance and body text
-        tfidf_vec.fit(df["Headline"].tolist() + df["articleBody"].tolist())
-        # Write vectorizer object to serialized file
-        pickle.dump(tfidf_vec, open(config["tfidf_vec"], "wb"))
+    tfidf_vec = load_or_generate_vectorizer("tfidf", df)
 
     # List of list of features per stance/body pair
     features = []
@@ -192,19 +212,19 @@ def build_features(split, phase, config):
     # Process each row in merged data frame
     for idx, row in tqdm(df.iterrows(), total=len(df.index)):
         # Build features
-        fb = FeatureBuilder(config["feats_{}".format(phase)], row)
+        fb = FeatureBuilder(config["feats"], row)
         # Append label
         features.append(fb.feats + [row["Stance"]])
         # Get list of features
         cols = fb.use
-        if idx == 100:
-            break
+        # if idx == 100:
+        #     break
 
     # Append label
     cols += ["label"]
 
     # Write training data to feature file
     df = pd.DataFrame(features, columns=cols)
-    df.to_csv(config["{0}_feats_{1}".format(split, phase)], index=False)
+    df.to_csv(config["{0}_feats".format(split)], index=False)
 
     return df
