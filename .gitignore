@@ -3,4 +3,5 @@ data/*.pkl
 *.model
 **/__pycache__/
 stanford-corenlp*
+sentiment/data/
 

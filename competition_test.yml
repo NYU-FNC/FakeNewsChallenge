@@ -15,5 +15,8 @@ model_dump: ./data/model_dump.raw.txt
 
 verbose: true
 
-data_dir: ./fnc-1
-corenlp_dir: ./stanford-corenlp-full-2018-02-27
+train_stances_sentiment: ./data/sentiment/train_stances.sentiment.txt
+train_bodies_sentiment: ./data/sentiment/train_bodies.sentiment.txt
+
+test_stances_sentiment: ./data/sentiment/competition_test_stances.sentiment.txt
+test_bodies_sentiment: ./data/sentiment/competition_test_bodies.sentiment.txt

@@ -7,7 +7,6 @@ import spacy
 
 from tqdm import tqdm
 
-# from pycorenlp import StanfordCoreNLP
 from scipy.spatial.distance import hamming, cosine
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
@@ -15,19 +14,23 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 nlp = spacy.load(
     "en_core_web_lg",
     disable=[
+        "parser",
         "ner",
     ])
 
 
 class FeatureBuilder:
 
-    def __init__(self, stance, body):
+    def __init__(self, row):
 
-        self.stance = stance  # Headline
-        self.body = body  # Article body
+        self.stance = row["Headline"]  # Headline
+        self.body = row["articleBody"]  # Article body
 
         self.nlpstance = nlp(self.stance)
         self.nlpbody = nlp(self.body)
+
+        self.stance_sentiment_score = row["stances_sentiment"]
+        self.body_sentiment_score = row["bodies_sentiment"]
 
         # List of extracted features
         self.feats = []
@@ -35,12 +38,12 @@ class FeatureBuilder:
         # Features to use
         self.use = [
             "hamming_distance",
-            "stance_polarity",
-            "body_polarity",
+            "stance_sentiment",
+            "body_sentiment",
             "doc_similarity",
             "word_overlap",
-            "dep_subject_overlap",
-            "dep_object_overlap",
+            # "dep_subject_overlap",
+            # "dep_object_overlap",
             "tfidf_cosine",
         ]
 
@@ -60,44 +63,17 @@ class FeatureBuilder:
         dist = hamming(stancevec.toarray(), bodyvec.toarray())
         self.feats.append(dist)
 
-    def stance_polarity(self):
+    def stance_sentiment(self):
         """
-        Average sentiment polarity of stance
+        Average CoreNLP sentiment score of stance
         """
-        # res = corenlp.annotate(
-        #     self.stance,
-        #     properties={
-        #         "annotators": "sentiment",
-        #         "outputFormat": "json",
-        #         "timeout": 10000000,
-        #     })
-        # # Average
-        # avg = 0.0
+        self.feats.append(self.stance_sentiment_score)
 
-        # for s in res["sentences"]:
-        #     avg += float(s["sentimentValue"])
-        # avg = avg / len(res["sentences"])
-        # self.feats.append(avg)
-        self.feats.append(0.0)
-
-    def body_polarity(self):
+    def body_sentiment(self):
         """
-        Average sentiment polarity of body
+        Average CoreNLP sentiment score of body
         """
-        # res = corenlp.annotate(
-        #     self.body,
-        #     properties={
-        #         "annotators": "sentiment",
-        #         "outputFormat": "json",
-        #         "timeout": 10000000,
-        #     })
-        # # Average
-        # avg = 0.0
-        # for s in res["sentences"]:
-        #     avg += float(s["sentimentValue"])
-        # avg = avg / len(res["sentences"])
-        # self.feats.append(avg)
-        self.feats.append(0.0)
+        self.feats.append(self.body_sentiment_score)
 
     def doc_similarity(self):
         """
@@ -165,6 +141,12 @@ def build_features(split, config):
     df_stances = pd.read_csv(config["{0}_stances".format(split)])
     df_bodies = pd.read_csv(config["{0}_bodies".format(split)])
 
+    # Add sentiment scores
+    df_stances["stances_sentiment"] = [
+        float(s) for s in open(config["{0}_stances_sentiment".format(split)], "r")]
+    df_bodies["bodies_sentiment"] = [
+        float(s) for s in open(config["{0}_bodies_sentiment".format(split)], "r")]
+
     # Merge stances and bodies
     df = pd.merge(df_stances, df_bodies, on="Body ID", how="left")
 
@@ -203,7 +185,7 @@ def build_features(split, config):
     # Process each row in merged data frame
     for idx, row in tqdm(df.iterrows(), total=len(df.index)):
         # Build features
-        fb = FeatureBuilder(row["Headline"], row["articleBody"])
+        fb = FeatureBuilder(row)
         # Append label
         features.append(fb.feats + [row["Stance"]])
         # Get list of features
