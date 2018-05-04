@@ -21,6 +21,7 @@ nlp = spacy.load(
         "ner",
     ])
 
+
 class FeatureBuilder:
 
     def __init__(self, features, row):
@@ -130,6 +131,7 @@ def build_features(split, phase, config):
     """
     Build features for train|test split
     """
+    global w2v_model
     w2v_model = KeyedVectors.load_word2vec_format(config["embeddings"], binary=True)
 
     if split not in ("train", "test"):
