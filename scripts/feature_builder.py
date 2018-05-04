@@ -10,6 +10,8 @@ from tqdm import tqdm
 from scipy.spatial.distance import hamming, cosine
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
+from gensim.models import KeyedVectors
+
 # spaCy
 nlp = spacy.load(
     "en_core_web_lg",
@@ -18,7 +20,6 @@ nlp = spacy.load(
         "parser",
         "ner",
     ])
-
 
 class FeatureBuilder:
 
@@ -37,7 +38,7 @@ class FeatureBuilder:
         self.feats = []
 
         # Features to use
-        self.use = features
+        self.use = features.copy()
 
         # Build features
         for x in self.use:
@@ -120,11 +121,17 @@ class FeatureBuilder:
         dist = cosine(stancevec.toarray(), bodyvec.toarray())
         self.feats.append(dist)
 
+    def wmdistance(self):
+        dist = w2v_model.wmdistance(self.stance, self.body)
+        self.feats.append(dist)
 
-def build_features(split, config, features_to_use):
+
+def build_features(split, phase, config):
     """
     Build features for train|test split
     """
+    w2v_model = KeyedVectors.load_word2vec_format(config["embeddings"], binary=True)
+
     if split not in ("train", "test"):
         print("Error: {0} is not a valid split, use train|test".format(split))
         sys.exit(1)
@@ -183,19 +190,19 @@ def build_features(split, config, features_to_use):
     # Process each row in merged data frame
     for idx, row in tqdm(df.iterrows(), total=len(df.index)):
         # Build features
-        fb = FeatureBuilder(features_to_use, row)
+        fb = FeatureBuilder(config["feats_{}".format(phase)], row)
         # Append label
         features.append(fb.feats + [row["Stance"]])
         # Get list of features
         cols = fb.use
-        # if idx == 500:
-        #     break
+        if idx == 100:
+            break
 
     # Append label
     cols += ["label"]
 
     # Write training data to feature file
     df = pd.DataFrame(features, columns=cols)
-    df.to_csv(config["{0}_feats".format(split)], index=False)
+    df.to_csv(config["{0}_feats_{1}".format(split, phase)], index=False)
 
     return df
