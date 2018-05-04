@@ -22,7 +22,7 @@ nlp = spacy.load(
 
 class FeatureBuilder:
 
-    def __init__(self, row):
+    def __init__(self, features, row):
 
         self.stance = row["Headline"]  # Headline
         self.body = row["articleBody"]  # Article body
@@ -37,16 +37,7 @@ class FeatureBuilder:
         self.feats = []
 
         # Features to use
-        self.use = [
-            "hamming_distance",
-            "stance_sentiment",
-            "body_sentiment",
-            "doc_similarity",
-            "word_overlap",
-            # "dep_subject_overlap",
-            # "dep_object_overlap",
-            "tfidf_cosine",
-        ]
+        self.use = features
 
         # Build features
         for x in self.use:
@@ -130,7 +121,7 @@ class FeatureBuilder:
         self.feats.append(dist)
 
 
-def build_features(split, config):
+def build_features(split, config, features_to_use):
     """
     Build features for train|test split
     """
@@ -192,12 +183,12 @@ def build_features(split, config):
     # Process each row in merged data frame
     for idx, row in tqdm(df.iterrows(), total=len(df.index)):
         # Build features
-        fb = FeatureBuilder(row)
+        fb = FeatureBuilder(features_to_use, row)
         # Append label
         features.append(fb.feats + [row["Stance"]])
         # Get list of features
         cols = fb.use
-        # if idx == 100:
+        # if idx == 500:
         #     break
 
     # Append label

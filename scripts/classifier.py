@@ -52,7 +52,18 @@ def main():
     # Build features
     # NB: Comment this out if feature files don't need to be regenerated
     for split in ("train", "test"):
-        build_features(split, config)
+        features_to_use = [
+            "hamming_distance",
+            "stance_sentiment",
+            "body_sentiment",
+            "doc_similarity",
+            "word_overlap",
+            # "dep_subject_overlap",
+            # "dep_object_overlap",
+            "tfidf_cosine",
+        ]
+
+        build_features(split, config, features_to_use)
 
     # Load feature files
     train_df = pd.read_csv(config["{0}_feats".format("train")])
@@ -84,7 +95,28 @@ def main():
     # Train and test classifier
     model_ru = train_and_test(dtrain)
 
+
+
+    for split in ("train", "test"):
+        features_to_use = [
+            # "hamming_distance",
+            "stance_sentiment",
+            "body_sentiment",
+            "doc_similarity",
+            # "word_overlap",
+            # "dep_subject_overlap",
+            # "dep_object_overlap",
+            # "tfidf_cosine",
+        ]
+
+        build_features(split, config, features_to_use)
+
+    train_df = pd.read_csv(config["{0}_feats".format("train")])
+    test_df = pd.read_csv(config["{0}_feats".format("test")])
+    train_df_second = train_df[train_df.label != "unrelated"]
+
     X_train, y_train = np.split(train_df_second, [-1], axis=1)
+    X_test, y_test = np.split(test_df, [-1], axis=1)
 
     # # Encode string labels
     le = LabelEncoder()
