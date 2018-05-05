@@ -11,3 +11,4 @@
 source activate fnc
 
 python scripts/run.py competition_test.yml
+python scripts/scorer.py fnc-1/competition_test_stances.csv predictions.csv
