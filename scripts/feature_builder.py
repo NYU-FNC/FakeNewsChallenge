@@ -6,7 +6,7 @@ import pandas as pd
 import spacy
 
 from gensim.models import KeyedVectors
-from spacy.en.word_sets import STOP_WORDS
+from spacy.lang.en.stop_words import STOP_WORDS
 from scipy.spatial.distance import hamming, cosine
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from tqdm import tqdm
