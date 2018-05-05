@@ -9,7 +9,7 @@ import xgboost as xgb
 
 from sklearn.preprocessing import LabelEncoder
 
-# from feature_builder import build_features
+from feature_builder import build_features
 from sklearn.metrics import accuracy_score
 
 
@@ -79,9 +79,9 @@ def main():
     # Load config
     config = init_config()
 
-    # # Build features
-    # for split in ("train", "test"):
-    #     build_features(split, config)
+    # Build features
+    for split in ("train", "test"):
+        build_features(split, config)
 
     # Train models
     model_1 = train(stage=1)
