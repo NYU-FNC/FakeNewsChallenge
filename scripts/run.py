@@ -91,11 +91,6 @@ def main():
     Stage 1
     """
     test_df = pd.read_csv(config["test_feats"])
-
-    # Save original labels
-    original_labels = test_df.iloc[:, -1:]
-
-    # Transform test data
     test_df["label"] = test_df["label"].replace(["agree", "disagree", "discuss"], "related")
     X_test, y_test = np.split(test_df, [-1], axis=1)
 
@@ -120,7 +115,7 @@ def main():
     # Add stage 1 labels
     X_test["label_1"] = pred_1
 
-    # ?
+    # ??
     X_test = X_test[X_test.label_1 != 0]
     X_test = X_test.drop(["label_1"], axis=1)
 

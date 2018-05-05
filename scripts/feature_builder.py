@@ -103,6 +103,8 @@ class FeatureBuilder:
 
         if (len(stance_subjects.intersection(body_subjects)) > 0):
             self.feats.append(1.0)
+        else:
+            self.feats.append(0.0)
 
     def dep_object_overlap(self):
         """
@@ -119,6 +121,8 @@ class FeatureBuilder:
 
         if (len(stance_objects.intersection(body_objects)) > 0):
             self.feats.append(1.0)
+        else:
+            self.feats.append(0.0)
 
     def tfidf_cosine(self):
         """
