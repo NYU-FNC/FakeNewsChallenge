@@ -12,20 +12,27 @@ from utils import (
 config = load_config()
 
 # Load dataset
+print("Loading text8 data...")
 data = api.load("text8")
 
 # Preprocess data
-data = [prep_text(" ".join(x)) for x in data]
+print("Preprocessing data...")
+text = " ".join(str(x) for x in data)
+prep = prep_text(text)
+data = prep.split()
+
+print(data)
 
 # Generate corpus and dictionary
 dct = Dictionary(data)
 corpus = [dct.doc2bow(line) for line in data]
 
 # Train model
+print("Training LDA model..")
 lda = LdaModel(
     corpus=corpus,
     id2word=dct,
-    num_topics=50,
+    num_topics=5,
     minimum_probability=0.0,
 )
 

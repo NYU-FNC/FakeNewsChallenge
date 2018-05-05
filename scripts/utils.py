@@ -3,7 +3,15 @@ import spacy
 import yaml
 
 # spaCy
-nlp = spacy.load("en_core_web_lg")
+nlp = spacy.load(
+    "en_core_web_lg",
+    disable=[
+        "tagger",
+        "parser",
+        "ner",
+    ],
+    max_length=200000000,
+)
 
 
 def load_config():
@@ -33,4 +41,4 @@ def prep_text(text):
     for tok in doc:
         if not tok.is_stop and not tok.is_punct:
             prep.append(tok.lemma_)
-    return " ".join(prep)
+    return prep

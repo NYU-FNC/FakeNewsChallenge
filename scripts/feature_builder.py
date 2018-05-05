@@ -27,7 +27,8 @@ nlp = spacy.load(
         "tagger",
         "parser",
         "ner",
-    ])
+    ],
+)
 
 DEP_SUBJ = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]
 DEP_OBJ = ["dobj", "dative", "attr", "oprd"]
@@ -59,8 +60,8 @@ class FeatureBuilder:
         self.body_sentiment_score = row["bodies_sentiment"]
 
         # Get LDA probability distributions
-        stance_bow = lda_dct.doc2bow(prep_text(self.stance).split())
-        body_bow = lda_dct.doc2bow(prep_text(self.body).split())
+        stance_bow = lda_dct.doc2bow(prep_text(self.stance))
+        body_bow = lda_dct.doc2bow(prep_text(self.body))
 
         stance_proba = lda_model.get_document_topics(stance_bow)
         body_proba = lda_model.get_document_topics(body_bow)
