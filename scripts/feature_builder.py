@@ -80,8 +80,10 @@ class FeatureBuilder:
         """
         Word overlap
         """
-        sset = set(tok.lemma_ for tok in self.nlpstance if not tok.is_stop)
-        bset = set(tok.lemma_ for tok in self.nlpbody if not tok.is_stop)
+        sset = set(tok.lemma_ for tok in self.nlpstance if
+                   not (tok.is_stop or tok.is_punct))
+        bset = set(tok.lemma_ for tok in self.nlpbody if
+                   not (tok.is_stop or tok.is_punct))
         intersec = len(sset.intersection(bset))
         union = len(sset.union(bset))
         self.feats.append(intersec / union)
@@ -92,10 +94,12 @@ class FeatureBuilder:
         """
         SUBJECTS = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]
 
-        stance_subjects = set([tok for tok in self.nlpstance if
-                               (tok.dep_ in SUBJECTS and not tok.is_stop)])
-        body_subjects = set([tok for tok in self.nlpbody if
-                             (tok.dep_ in SUBJECTS and not tok.is_stop)])
+        stance_subjects = \
+            set([tok for tok in self.nlpstance if
+                 (tok.dep_ in SUBJECTS and not (tok.is_stop or tok.is_punct))])
+        body_subjects = \
+            set([tok for tok in self.nlpbody if
+                 (tok.dep_ in SUBJECTS and not (tok.is_stop or tok.is_punct))])
 
         if (len(stance_subjects.intersection(body_subjects)) > 0):
             self.feats.append(1.0)
@@ -106,10 +110,12 @@ class FeatureBuilder:
         """
         OBJECTS = ["dobj", "dative", "attr", "oprd"]
 
-        stance_objects = set([tok for tok in self.nlpstance if
-                              (tok.dep_ in OBJECTS and not tok.is_stop)])
-        body_objects = set([tok for tok in self.nlpbody if
-                            (tok.dep_ in OBJECTS and not tok.is_stop)])
+        stance_objects = \
+            set([tok for tok in self.nlpstance if
+                 (tok.dep_ in OBJECTS and not (tok.is_stop or tok.is_punct))])
+        body_objects = \
+            set([tok for tok in self.nlpbody if
+                 (tok.dep_ in OBJECTS and not (tok.is_stop or tok.is_punct))])
 
         if (len(stance_objects.intersection(body_objects)) > 0):
             self.feats.append(1.0)
@@ -130,7 +136,11 @@ class FeatureBuilder:
         """
         Word movers distance (WMD)
         """
-        dist = w2v_model.wmdistance(self.stance, self.body)
+        stance = " ".join(tok.lower_ for tok in self.nlpstance if
+                          not (tok.is_stop or tok.is_punct))
+        body = " ".join(tok.lower_ for tok in self.nlpbody if
+                        not (tok.is_stop or tok.is_punct))
+        dist = w2v_model.wmdistance(stance, body)
         self.feats.append(dist)
 
 
