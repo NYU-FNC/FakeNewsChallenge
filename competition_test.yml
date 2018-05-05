@@ -8,6 +8,8 @@ feats:
   - dep_object_overlap
   - tfidf_cosine
   - wmdistance
+  - KL_pk_qk
+  - KL_qk_pk
 
 train_stances: ./fnc-1/train_stances.csv
 train_bodies: ./fnc-1/train_bodies.csv

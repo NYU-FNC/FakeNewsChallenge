@@ -6,11 +6,19 @@ import pandas as pd
 import spacy
 
 from gensim.models import KeyedVectors
+from scipy.spatial.distance import (
+    hamming,
+    cosine,
+)
+from scipy.stats import entropy
+from sklearn.feature_extraction.text import (
+    CountVectorizer,
+    TfidfVectorizer,
+)
 from spacy.lang.en.stop_words import STOP_WORDS
-from scipy.spatial.distance import hamming, cosine
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from tqdm import tqdm
 
+from utils import prep_text
 
 # spaCy
 nlp = spacy.load(
@@ -42,11 +50,31 @@ class FeatureBuilder:
         self.stance = row["Headline"]  # Headline
         self.body = row["articleBody"]  # Article body
 
+        # Process stance/body using spaCy
         self.nlpstance = nlp(self.stance)
         self.nlpbody = nlp(self.body)
 
+        # Get sentiment scores
         self.stance_sentiment_score = row["stances_sentiment"]
         self.body_sentiment_score = row["bodies_sentiment"]
+
+        # Get LDA probability distributions
+        stance_bow = lda_dct.doc2bow(prep_text(self.stance).split())
+        body_bow = lda_dct.doc2bow(prep_text(self.body).split())
+
+        stance_proba = lda_model.get_document_topics(stance_bow)
+        body_proba = lda_model.get_document_topics(body_bow)
+
+        print(stance_proba)
+        print(body_proba)
+        input()
+
+        self.pk = [prob for topic, prob in stance_proba]
+        self.qk = [prob for topic, prob in body_proba]
+
+        print(self.pk)
+        print(self.qk)
+        input()
 
         # List of extracted features
         self.feats = []
@@ -146,30 +174,42 @@ class FeatureBuilder:
         dist = w2v_model.wmdistance(stance, body)
         self.feats.append(dist)
 
+    def KL_pk_qk(self):
+        """
+        Kullback-Leibler divergence (pk, qk)
+        """
+        div = entropy(self.pk, qk=self.qk)
+        self.feats.append(div)
 
-def load_or_generate_vectorizer(vec, df):
+    def KL_qk_pk(self):
+        """
+        Kullback-Leibler divergence (qk, pk)
+        """
+        div = entropy(self.qk, qk=self.pk)
+        self.feats.append(div)
+
+
+def load_or_generate_vectorizer(which, df):
     """
     Load or generate vectorizer
     """
-    if vec not in ("count", "tfidf"):
-        print("Error: {0} is not a valid vectorizer, use count|tfidf".format(vec))
+    if which not in ("count", "tfidf"):
+        print("Error: {0} is not a valid vectorizer, use count|tfidf".format(which))
         sys.exit(1)
 
     # Load vectorizer object from serialized file
-    if os.path.isfile(config[vec + "_vec"]):
-        vec = pickle.load(open(config[vec + "_vec"], "rb"))
-
+    if os.path.isfile(config[which + "_vec"]):
+        vec = pickle.load(open(config[which + "_vec"], "rb"))
     else:
         # Generate CountVectorizer()
-        if vec == "count":
+        if which == "count":
             vec = CountVectorizer(
                 binary=True,
                 min_df=2,
                 stop_words=STOP_WORDS,
             )
-
         # Generate TfidfVectorizer()
-        if vec == "tfidf":
+        if which == "tfidf":
             vec = TfidfVectorizer(
                 min_df=2,
                 stop_words=STOP_WORDS,
@@ -179,7 +219,7 @@ def load_or_generate_vectorizer(vec, df):
         vec.fit(df["Headline"].tolist() + df["articleBody"].tolist())
 
         # Write vectorizer object to serialized file
-        pickle.dump(vec, open(config[vec + "_vec"], "wb"))
+        pickle.dump(vec, open(config[which + "_vec"], "wb"))
 
     return vec
 
@@ -193,6 +233,11 @@ def build_features(split, config_file):
 
     global w2v_model
     w2v_model = KeyedVectors.load_word2vec_format(config["embeddings"], binary=True)
+
+    global lda_model
+    global lda_dct
+    lda_model = pickle.load(open(config["lda_model"], "rb"))
+    lda_dct = pickle.load(open(config["lda_dct"], "rb"))
 
     if split not in ("train", "test"):
         print("Error: {0} is not a valid split, use train|test".format(split))
@@ -238,8 +283,8 @@ def build_features(split, config_file):
         features.append(fb.feats + [row["Stance"]])
         # Get list of features
         cols = fb.use
-        # if idx == 100:
-        #     break
+        if idx == 100:
+            break
 
     # Append label
     cols += ["label"]
