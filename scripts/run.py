@@ -9,8 +9,7 @@ import xgboost as xgb
 
 from sklearn.preprocessing import LabelEncoder
 
-from score import report_score
-from feature_builder import build_features
+# from feature_builder import build_features
 from sklearn.metrics import accuracy_score
 
 
@@ -80,9 +79,9 @@ def main():
     # Load config
     config = init_config()
 
-    # Build features
-    for split in ("train", "test"):
-        build_features(split, config)
+    # # Build features
+    # for split in ("train", "test"):
+    #     build_features(split, config)
 
     # Train models
     model_1 = train(stage=1)
@@ -128,6 +127,7 @@ def main():
     # Encode labels
     le = LabelEncoder()
     le.fit(["agree", "disagree", "discuss"])
+    print(le.classes_)
 
     # Convert to DMatrix
     dtest = xgb.DMatrix(X_test.as_matrix())
@@ -138,20 +138,32 @@ def main():
     """
     Combine stage 1 and 2
     """
-    final = []
+    pred = []
     i = 0
     for idx, y in enumerate(pred_1):
         if y == 0:
-            final.append(pred_2[i])
+            pred.append(pred_2[i])
             i += 1
         else:
-            final.append(3)
+            pred.append(3)
 
-    le = LabelEncoder()
-    le.fit(["agree", "disagree", "discuss", "unrelated"])
-    original_labels = le.transform(original_labels.as_matrix())
+    label_map = {
+        0: "agree",
+        1: "disagree",
+        2: "discuss",
+        3: "unrelated",
+    }
 
-    report_score(original_labels, final)
+    labels = []
+    for x in pred:
+        labels.append(label_map[x])
+
+    # Load unlabeled test set
+    df = pd.read_csv(config["test_unlabeled"])
+
+    # Write output file
+    df["Stance"] = labels
+    df.to_csv("predictions.csv", index=False)
 
 
 if __name__ == '__main__':
