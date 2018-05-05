@@ -1,34 +1,14 @@
 #!/usr/bin/env python3
 
-import argparse
-import yaml
-
-import pandas as pd
 import numpy as np
+import pandas as pd
 import xgboost as xgb
 
+from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelEncoder
 
 from feature_builder import build_features
-from sklearn.metrics import accuracy_score
-
-
-def init_config():
-    """
-    Initialize config file
-    """
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "config_file",
-        metavar="config_file",
-        help=".yml configuration file")
-    args = parser.parse_args()
-
-    # Load .yml file
-    with open(args.config_file, "r") as config_file:
-        global config
-        config = yaml.load(config_file)
-    return config
+from utils import load_config
 
 
 def train(stage):
@@ -75,9 +55,11 @@ def train(stage):
 
 
 def main():
-
+    """
+    """
     # Load config
-    config = init_config()
+    global config
+    config = load_config()
 
     # Build features
     for split in ("train", "test"):

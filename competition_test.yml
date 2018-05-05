@@ -31,3 +31,6 @@ test_stances_sentiment: ./data/sentiment/competition_test_stances.sentiment.txt
 test_bodies_sentiment: ./data/sentiment/competition_test_bodies.sentiment.txt
 
 embeddings: ./data/GoogleNews-vectors-negative300.bin
+
+lda_model: ./data/lda_model.pkl
+lda_dct: ./data/lda_dct.pkl
