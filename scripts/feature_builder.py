@@ -16,10 +16,23 @@ from tqdm import tqdm
 nlp = spacy.load(
     "en_core_web_lg",
     disable=[
-        "tagger",
-        "parser",
+        # "tagger",
+        # "parser",
         "ner",
     ])
+
+DEP_SUBJ = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]
+DEP_OBJ = ["dobj", "dative", "attr", "oprd"]
+
+
+def tok_dep_is_valid(tok, deps):
+    """
+    Check if token is valid for dependency overlap features
+    """
+    if (tok.dep_ in deps) and (tok.pos_ in ["NOUN", "PROPN"]) \
+            and not tok.is_stop and not tok.is_punct:
+        return True
+    return False
 
 
 class FeatureBuilder:
@@ -90,39 +103,25 @@ class FeatureBuilder:
 
     def dep_subject_overlap(self):
         """
-        Subject overlap between stance/body spaCy subjects (binary)
+        Subject overlap between stance/body spaCy subjects
         """
-        SUBJECTS = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]
-
-        stance_subjects = \
-            set([tok for tok in self.nlpstance if
-                 (tok.dep_ in SUBJECTS and not (tok.is_stop or tok.is_punct))])
-        body_subjects = \
-            set([tok for tok in self.nlpbody if
-                 (tok.dep_ in SUBJECTS and not (tok.is_stop or tok.is_punct))])
-
-        if (len(stance_subjects.intersection(body_subjects)) > 0):
-            self.feats.append(1.0)
-        else:
-            self.feats.append(0.0)
+        s_subj = set([tok.lemma_ for tok in self.nlpstance
+                      if tok_dep_is_valid(tok, DEP_SUBJ)])
+        b_subj = set([tok.lemma_ for tok in self.nlpbody
+                      if tok_dep_is_valid(tok, DEP_SUBJ)])
+        intersec = s_subj.intersection(b_subj)
+        self.feats.append(len(intersec))
 
     def dep_object_overlap(self):
         """
-        Object overlap between stance/body spaCy objects (binary)
+        Object overlap between stance/body spaCy objects
         """
-        OBJECTS = ["dobj", "dative", "attr", "oprd"]
-
-        stance_objects = \
-            set([tok for tok in self.nlpstance if
-                 (tok.dep_ in OBJECTS and not (tok.is_stop or tok.is_punct))])
-        body_objects = \
-            set([tok for tok in self.nlpbody if
-                 (tok.dep_ in OBJECTS and not (tok.is_stop or tok.is_punct))])
-
-        if (len(stance_objects.intersection(body_objects)) > 0):
-            self.feats.append(1.0)
-        else:
-            self.feats.append(0.0)
+        s_obj = set([tok.lemma_ for tok in self.nlpstance
+                     if tok_dep_is_valid(tok, DEP_OBJ)])
+        b_obj = set([tok.lemma_ for tok in self.nlpbody
+                     if tok_dep_is_valid(tok, DEP_OBJ)])
+        intersec = s_obj.intersection(b_obj)
+        self.feats.append(len(intersec))
 
     def tfidf_cosine(self):
         """
