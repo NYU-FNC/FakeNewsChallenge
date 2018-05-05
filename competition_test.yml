@@ -4,8 +4,8 @@ feats:
   - body_sentiment
   - doc_similarity
   - word_overlap
-  - dep_subject_overlap
-  - dep_object_overlap
+  # - dep_subject_overlap
+  # - dep_object_overlap
   - tfidf_cosine
   - wmdistance
   - KL_pk_qk

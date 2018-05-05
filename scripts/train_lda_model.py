@@ -14,7 +14,7 @@ config = load_config()
 # Load dataset
 data = api.load("text8")
 
-# Filter stop words
+# Preprocess data
 data = [prep_text(" ".join(x)) for x in data]
 
 # Generate corpus and dictionary

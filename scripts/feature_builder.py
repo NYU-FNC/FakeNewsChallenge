@@ -24,8 +24,8 @@ from utils import prep_text
 nlp = spacy.load(
     "en_core_web_lg",
     disable=[
-        # "tagger",
-        # "parser",
+        "tagger",
+        "parser",
         "ner",
     ])
 
