@@ -23,11 +23,11 @@ def train(stage):
             train_df["label"].replace(["agree", "disagree", "discuss"], "related")
         labels = ["unrelated", "related"]
         params = {
-            "learning_rate": 0.019,
+            "learning_rate": 0.017,
             "n_estimators": 100,
             "max_depth": 9,
             "min_child_weight": 1,
-            "gamma": 0.1,
+            "gamma": 0.3,
             "subsample": 0.8,
             "colsample_bytree": 0.9,
             "scale_pos_weight": 1,
@@ -39,13 +39,13 @@ def train(stage):
         train_df = train_df[train_df.label != "unrelated"]
         labels = ["agree", "disagree", "discuss"]
         params = {
-            "learning_rate": 0.017,
+            "learning_rate": 0.019,
             "n_estimators": 100,
             "max_depth": 9,
             "min_child_weight": 1,
-            "gamma": 0.1,
+            "gamma": 0.4,
             "subsample": 0.9,
-            "colsample_bytree": 0.7,
+            "colsample_bytree": 0.9,
             "scale_pos_weight": 1,
             "objective": "multi:softprob",
             "num_class": len(labels),

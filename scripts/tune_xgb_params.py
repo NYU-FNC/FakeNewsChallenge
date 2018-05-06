@@ -195,8 +195,6 @@ def train(stage):
     print("--- BEST PARAMETERS ---")
     print(best)
 
-    input()
-
 
 def main():
     """
