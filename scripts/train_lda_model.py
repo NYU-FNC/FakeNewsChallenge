@@ -1,9 +1,8 @@
-import gensim.downloader as api
 import pickle
+import wikipedia
 
 from gensim.corpora import Dictionary
 from gensim.models.ldamodel import LdaModel
-from tqdm import tqdm
 
 from utils import (
     load_config,
@@ -12,24 +11,16 @@ from utils import (
 
 config = load_config()
 
-# Load dataset
-print("Loading Wikipedia data...")
-data = api.load("wiki-english-20171001")
+data = []
+random_articles = wikipedia.random(pages=100000)
 
-# Preprocess data
-print("Preparing processing...")
-data_prep = []
-
-print("Preprocessing data...")
-for x in tqdm(data):
-    text_all = []
-    for text in x["section_texts"]:
-        text_all.extend(prep_text(text))
-    data_prep.append(" ".join(text_all))
+for article in random_articles:
+    prep = prep_text(wikipedia.page(article).content)
+    data.append(prep)
 
 # Generate dictionary and document-term matrix
-dct = Dictionary([article.split() for article in data_prep])
-doc_term_matrix = [dct.doc2bow(article.split()) for article in data_prep]
+dct = Dictionary(data)
+doc_term_matrix = [dct.doc2bow(article) for article in data]
 
 # Train model
 print("Training LDA model..")
