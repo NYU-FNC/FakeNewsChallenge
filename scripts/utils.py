@@ -2,6 +2,8 @@ import argparse
 import spacy
 import yaml
 
+from spacy.lang.en.stop_words import STOP_WORDS
+
 # spaCy
 nlp = spacy.load(
     "en_core_web_lg",
@@ -10,7 +12,6 @@ nlp = spacy.load(
         "parser",
         "ner",
     ],
-    max_length=200000000,
 )
 
 
@@ -39,6 +40,6 @@ def prep_text(text):
     doc = nlp(text)
     prep = []
     for tok in doc:
-        if not tok.is_stop and not tok.is_punct:
-            prep.append(tok.lemma_)
+        if ((tok.lower_ not in STOP_WORDS) and tok.is_alpha):
+            prep.append(tok.lemma_.lower())
     return prep

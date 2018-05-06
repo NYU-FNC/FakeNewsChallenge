@@ -12,27 +12,29 @@ from utils import (
 config = load_config()
 
 # Load dataset
-print("Loading text8 data...")
-data = api.load("text8")
+print("Loading Wikipedia data...")
+data = api.load("wiki-english-20171001")
 
 # Preprocess data
 print("Preprocessing data...")
-text = " ".join(str(x) for x in data)
-prep = prep_text(text)
-data = prep.split()
+data_prep = []
 
-print(data)
+for idx, x in enumerate(data):
+    text_all = []
+    for text in x["section_texts"]:
+        text_all.extend(prep_text(text))
+    data_prep.append(" ".join(text_all))
 
-# Generate corpus and dictionary
-dct = Dictionary(data)
-corpus = [dct.doc2bow(line) for line in data]
+# Generate dictionary and document-term matrix
+dct = Dictionary([article.split() for article in data_prep])
+doc_term_matrix = [dct.doc2bow(article.split()) for article in data_prep]
 
 # Train model
 print("Training LDA model..")
 lda = LdaModel(
-    corpus=corpus,
+    doc_term_matrix,
     id2word=dct,
-    num_topics=5,
+    num_topics=100,
     minimum_probability=0.0,
 )
 

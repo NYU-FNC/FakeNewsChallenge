@@ -39,7 +39,7 @@ def tok_dep_is_valid(tok, deps):
     Check if token is valid for dependency overlap features
     """
     if (tok.dep_ in deps) and (tok.pos_ in ["NOUN", "PROPN"]) \
-            and not tok.is_stop and not tok.is_punct:
+            and (tok.lower_ not in STOP_WORDS) and not tok.is_punct:
         return True
     return False
 
@@ -66,16 +66,9 @@ class FeatureBuilder:
         stance_proba = lda_model.get_document_topics(stance_bow)
         body_proba = lda_model.get_document_topics(body_bow)
 
-        print(stance_proba)
-        print(body_proba)
-        input()
-
         self.pk = [prob for topic, prob in stance_proba]
         self.qk = [prob for topic, prob in body_proba]
-
-        print(self.pk)
-        print(self.qk)
-        input()
+        assert(len(self.pk) == len(self.qk))
 
         # List of extracted features
         self.feats = []
@@ -284,8 +277,8 @@ def build_features(split, config_file):
         features.append(fb.feats + [row["Stance"]])
         # Get list of features
         cols = fb.use
-        if idx == 100:
-            break
+        # if idx == 100:
+        #     break
 
     # Append label
     cols += ["label"]
