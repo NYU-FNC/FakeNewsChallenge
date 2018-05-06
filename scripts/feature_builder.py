@@ -33,6 +33,9 @@ nlp = spacy.load(
 DEP_SUBJ = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]
 DEP_OBJ = ["dobj", "dative", "attr", "oprd"]
 
+INTRO_LEN = 250
+MAX_NGRAM_LEN = 3
+
 
 def tok_dep_is_valid(tok, deps):
     """
@@ -42,6 +45,13 @@ def tok_dep_is_valid(tok, deps):
             and (tok.lower_ not in STOP_WORDS) and not tok.is_punct:
         return True
     return False
+
+
+def generate_ngrams(tok_list, n):
+    """
+    Generate n-grams
+    """
+    return zip(*[tok_list[i:] for i in range(n)])
 
 
 class FeatureBuilder:
@@ -111,17 +121,88 @@ class FeatureBuilder:
         sim = self.nlpstance.similarity(self.nlpbody)
         self.feats.append(sim)
 
+    def doc_similarity_intro(self):
+        """
+        spaCy document similarity (intro)
+        """
+        sim = self.nlpstance.similarity(self.nlpbody[:INTRO_LEN])
+        self.feats.append(sim)
+
     def word_overlap(self):
         """
         Word overlap
         """
         sset = set(tok.lemma_ for tok in self.nlpstance if
-                   not (tok.is_stop or tok.is_punct))
+                   not ((tok.lower_ in STOP_WORDS) or tok.is_punct))
         bset = set(tok.lemma_ for tok in self.nlpbody if
-                   not (tok.is_stop or tok.is_punct))
+                   not ((tok.lower_ in STOP_WORDS) or tok.is_punct))
         intersec = len(sset.intersection(bset))
         union = len(sset.union(bset))
         self.feats.append(intersec / union)
+
+    def word_overlap_intro(self):
+        """
+        Word overlap (intro)
+        """
+        sset = set(tok.lemma_ for tok in self.nlpstance if
+                   not ((tok.lower_ in STOP_WORDS) or tok.is_punct))
+        bset = set(tok.lemma_ for tok in self.nlpbody[:INTRO_LEN] if
+                   not ((tok.lower_ in STOP_WORDS) or tok.is_punct))
+        intersec = len(sset.intersection(bset))
+        union = len(sset.union(bset))
+        self.feats.append(intersec / union)
+
+    def ngram_overlap(self):
+        """
+        N-gram overlap
+        """
+        stance_toks = [tok.lemma_ for tok in self.nlpstance if
+                       not ((tok.lower_ in STOP_WORDS) or tok.is_punct)]
+        body_toks = [tok.lemma_ for tok in self.nlpbody if
+                     not ((tok.lower_ in STOP_WORDS) or tok.is_punct)]
+
+        stance_ngrams = []
+        for n in range(1, MAX_NGRAM_LEN + 1):
+            ngrams = generate_ngrams(stance_toks, n)
+            stance_ngrams.extend(ngrams)
+
+        body_ngrams = []
+        for n in range(1, MAX_NGRAM_LEN + 1):
+            ngrams = generate_ngrams(body_toks, n)
+            body_ngrams.extend(ngrams)
+
+        overlap = 0
+        for ngram in stance_ngrams:
+            if ngram in body_ngrams:
+                overlap += 1
+
+        self.feats.append(overlap)
+
+    def ngram_overlap_intro(self):
+        """
+        N-gram overlap (intro)
+        """
+        stance_toks = [tok.lemma_ for tok in self.nlpstance if
+                       not ((tok.lower_ in STOP_WORDS) or tok.is_punct)]
+        body_toks = [tok.lemma_ for tok in self.nlpbody[:INTRO_LEN] if
+                     not ((tok.lower_ in STOP_WORDS) or tok.is_punct)]
+
+        stance_ngrams = []
+        for n in range(1, MAX_NGRAM_LEN + 1):
+            ngrams = generate_ngrams(stance_toks, n)
+            stance_ngrams.extend(ngrams)
+
+        body_ngrams = []
+        for n in range(1, MAX_NGRAM_LEN + 1):
+            ngrams = generate_ngrams(body_toks, n)
+            body_ngrams.extend(ngrams)
+
+        overlap = 0
+        for ngram in stance_ngrams:
+            if ngram in body_ngrams:
+                overlap += 1
+
+        self.feats.append(overlap)
 
     def dep_subject_overlap(self):
         """
@@ -145,6 +226,18 @@ class FeatureBuilder:
         intersec = s_obj.intersection(b_obj)
         self.feats.append(len(intersec))
 
+    def count_cosine(self):
+        """
+        Cosine similarity between stance/body count vectors
+        """
+        stancevec = count_vec.transform([self.stance])
+        bodyvec = count_vec.transform([self.body])
+        assert(stancevec.shape == bodyvec.shape)
+
+        # Compute cosine similarity
+        dist = cosine(stancevec.toarray(), bodyvec.toarray())
+        self.feats.append(dist)
+
     def tfidf_cosine(self):
         """
         Cosine similarity between stance/body TF-IDF vectors
@@ -162,9 +255,9 @@ class FeatureBuilder:
         Word movers distance (WMD)
         """
         stance = " ".join(tok.lower_ for tok in self.nlpstance if
-                          not (tok.is_stop or tok.is_punct))
+                          not ((tok.lower_ in STOP_WORDS) or tok.is_punct))
         body = " ".join(tok.lower_ for tok in self.nlpbody if
-                        not (tok.is_stop or tok.is_punct))
+                        not ((tok.lower_ in STOP_WORDS) or tok.is_punct))
         dist = w2v_model.wmdistance(stance, body)
         self.feats.append(dist)
 
@@ -200,12 +293,14 @@ def load_or_generate_vectorizer(which, df):
             vec = CountVectorizer(
                 binary=True,
                 min_df=2,
+                ngram_range=(1, 3),
                 stop_words=STOP_WORDS,
             )
         # Generate TfidfVectorizer()
         if which == "tfidf":
             vec = TfidfVectorizer(
                 min_df=2,
+                ngram_range=(1, 3),
                 stop_words=STOP_WORDS,
             )
 
