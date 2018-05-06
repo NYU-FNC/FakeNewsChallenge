@@ -23,7 +23,7 @@ for article in tqdm(random_articles, total=n):
     try:
         content = wikipedia.page(article).content
     except wikipedia.exceptions.DisambiguationError as e:
-        content = wikipedia.page(e.options[0]).content
+        continue
     prep = prep_text(content)
     data.append(prep)
 
