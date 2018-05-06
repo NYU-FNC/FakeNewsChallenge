@@ -19,10 +19,9 @@ data = api.load("wiki-english-20171001")
 # Preprocess data
 print("Preparing processing...")
 data_prep = []
-total = sum(1 for _ in data)
 
 print("Preprocessing data...")
-for x in tqdm(data, total=total):
+for x in tqdm(data):
     text_all = []
     for text in x["section_texts"]:
         text_all.extend(prep_text(text))
