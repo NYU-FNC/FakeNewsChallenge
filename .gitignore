@@ -1,5 +1,6 @@
 data/*.raw.txt
 data/*.pkl
+data/nyt.txt
 *.model
 **/__pycache__/
 stanford-corenlp*

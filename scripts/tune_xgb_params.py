@@ -192,7 +192,7 @@ def train(stage):
     auc = accuracy_score(y_train, model.predict(X_train.as_matrix()))
     print("Model accuracy:", auc, "\n")
 
-    print("--- BEST PARAMETERS ---\n")
+    print("--- BEST PARAMETERS ---")
     print(best)
 
     input()

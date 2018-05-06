@@ -7,7 +7,7 @@ import xgboost as xgb
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelEncoder
 
-from feature_builder import build_features
+# from feature_builder import build_features
 from utils import load_config
 
 
@@ -21,17 +21,38 @@ def train(stage):
     if stage == 1:
         train_df["label"] = \
             train_df["label"].replace(["agree", "disagree", "discuss"], "related")
+        labels = ["unrelated", "related"]
+        params = {
+            "learning_rate": 0.019,
+            "n_estimators": 100,
+            "max_depth": 9,
+            "min_child_weight": 1,
+            "gamma": 0.1,
+            "subsample": 0.8,
+            "colsample_bytree": 0.9,
+            "scale_pos_weight": 1,
+            "objective": "multi:softprob",
+            "num_class": len(labels),
+        }
+
     if stage == 2:
         train_df = train_df[train_df.label != "unrelated"]
+        labels = ["agree", "disagree", "discuss"]
+        params = {
+            "learning_rate": 0.017,
+            "n_estimators": 100,
+            "max_depth": 9,
+            "min_child_weight": 1,
+            "gamma": 0.1,
+            "subsample": 0.9,
+            "colsample_bytree": 0.7,
+            "scale_pos_weight": 1,
+            "objective": "multi:softprob",
+            "num_class": len(labels),
+        }
 
     # Split features and label
     X_train, y_train = np.split(train_df, [-1], axis=1)
-
-    # Get labels
-    if stage == 1:
-        labels = ["unrelated", "related"]
-    if stage == 2:
-        labels = ["agree", "disagree", "discuss"]
 
     # Encode labels
     le = LabelEncoder()
@@ -41,15 +62,8 @@ def train(stage):
     # Build DMatrix
     dtrain = xgb.DMatrix(X_train.as_matrix(), label=y_train)
 
-    # Parameters
-    param = {
-        "objective": "multi:softprob",
-        "num_class": 4,
-    }
-    num_round = 20
-
     # Train model, dump feature map, and save model to file
-    model = xgb.train(param, dtrain, num_round, verbose_eval=config["verbose"])
+    model = xgb.train(params, dtrain, 20, verbose_eval=config["verbose"])
 
     return model
 
@@ -61,9 +75,9 @@ def main():
     global config
     config = load_config()
 
-    # Build features
-    for split in ("train", "test"):
-        build_features(split, config)
+    # # Build features
+    # for split in ("train", "test"):
+    #     build_features(split, config)
 
     # Train models
     model_1 = train(stage=1)
