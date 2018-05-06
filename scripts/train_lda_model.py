@@ -3,6 +3,7 @@ import pickle
 
 from gensim.corpora import Dictionary
 from gensim.models.ldamodel import LdaModel
+from tqdm import tqdm
 
 from utils import (
     load_config,
@@ -16,10 +17,12 @@ print("Loading Wikipedia data...")
 data = api.load("wiki-english-20171001")
 
 # Preprocess data
-print("Preprocessing data...")
+print("Preparing processing...")
 data_prep = []
+total = sum(1 for _ in data)
 
-for idx, x in enumerate(data):
+print("Preprocessing data...")
+for x in tqdm(data, total=total):
     text_all = []
     for text in x["section_texts"]:
         text_all.extend(prep_text(text))
