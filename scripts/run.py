@@ -7,7 +7,7 @@ import xgboost as xgb
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelEncoder
 
-# from feature_builder import build_features
+from feature_builder import build_features
 from utils import load_config
 
 
@@ -23,13 +23,13 @@ def train(stage):
             train_df["label"].replace(["agree", "disagree", "discuss"], "related")
         labels = ["unrelated", "related"]
         params = {
-            "learning_rate": 0.017,
-            "n_estimators": 100,
+            "learning_rate": 0.015,
+            "n_estimators": 400,
             "max_depth": 9,
             "min_child_weight": 1,
-            "gamma": 0.3,
-            "subsample": 0.8,
-            "colsample_bytree": 0.9,
+            "gamma": 0.0,
+            "subsample": 0.6,
+            "colsample_bytree": 0.8,
             "scale_pos_weight": 1,
             "objective": "multi:softprob",
             "num_class": len(labels),
@@ -39,12 +39,12 @@ def train(stage):
         train_df = train_df[train_df.label != "unrelated"]
         labels = ["agree", "disagree", "discuss"]
         params = {
-            "learning_rate": 0.019,
-            "n_estimators": 100,
+            "learning_rate": 0.005,
+            "n_estimators": 500,
             "max_depth": 9,
             "min_child_weight": 1,
-            "gamma": 0.4,
-            "subsample": 0.9,
+            "gamma": 0.0,
+            "subsample": 0.6,
             "colsample_bytree": 0.9,
             "scale_pos_weight": 1,
             "objective": "multi:softprob",
@@ -75,9 +75,9 @@ def main():
     global config
     config = load_config()
 
-    # # Build features
-    # for split in ("train", "test"):
-    #     build_features(split, config)
+    # Build features
+    for split in ("train", "test"):
+        build_features(split, config)
 
     # Train models
     model_1 = train(stage=1)

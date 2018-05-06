@@ -3,9 +3,14 @@ feats:
   - stance_sentiment
   - body_sentiment
   - doc_similarity
+  - doc_similarity_intro
   - word_overlap
+  - word_overlap_intro
+  - ngram_overlap
+  - ngram_overlap_intro
   # - dep_subject_overlap
   # - dep_object_overlap
+  - count_cosine
   - tfidf_cosine
   - wmdistance
   - KL_pk_qk
