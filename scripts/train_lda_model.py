@@ -10,12 +10,15 @@ from utils import (
 )
 
 config = load_config()
+n = 100000
 
 # Preprocessing text
 print("Preprocessing text...")
 data = []
 for doc in tqdm(open(config["gigaword"], "r")):
     data.append(prep_text(doc))
+    if len(data) == n:
+        break
 
 # Generate dictionary and document-term matrix
 dct = Dictionary(data)
@@ -26,7 +29,7 @@ print("Training LDA model...")
 lda = LdaModel(
     doc_term_matrix,
     id2word=dct,
-    num_topics=300,
+    num_topics=100,
     minimum_probability=0.0,
 )
 
