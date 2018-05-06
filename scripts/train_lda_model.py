@@ -1,5 +1,4 @@
 import pickle
-import wikipedia
 
 from gensim.corpora import Dictionary
 from gensim.models.ldamodel import LdaModel
@@ -12,31 +11,22 @@ from utils import (
 
 config = load_config()
 
+# Preprocessing text
+print("Preprocessing text..")
 data = []
-
-n = 100000
-random_articles = wikipedia.random(pages=n)
-
-# Preprocess articles
-print("Preprocessing articles..")
-for article in tqdm(random_articles, total=n):
-    try:
-        content = wikipedia.page(article).content
-    except wikipedia.exceptions.DisambiguationError as e:
-        continue
-    prep = prep_text(content)
-    data.append(prep)
+for doc in tqdm(open(config["gigaword"], "r")):
+    data.append(prep_text(doc))
 
 # Generate dictionary and document-term matrix
 dct = Dictionary(data)
-doc_term_matrix = [dct.doc2bow(article) for article in data]
+doc_term_matrix = [dct.doc2bow(doc) for doc in data]
 
 # Train model
 print("Training LDA model..")
 lda = LdaModel(
     doc_term_matrix,
     id2word=dct,
-    num_topics=100,
+    num_topics=300,
     minimum_probability=0.0,
 )
 

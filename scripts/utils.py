@@ -1,18 +1,7 @@
 import argparse
-import spacy
 import yaml
 
 from spacy.lang.en.stop_words import STOP_WORDS
-
-# spaCy
-nlp = spacy.load(
-    "en_core_web_lg",
-    disable=[
-        "tagger",
-        "parser",
-        "ner",
-    ],
-)
 
 
 def load_config():
@@ -37,9 +26,8 @@ def prep_text(text):
     """
     Preprocess text
     """
-    doc = nlp(text)
     prep = []
-    for tok in doc:
-        if ((tok.lower_ not in STOP_WORDS) and tok.is_alpha):
-            prep.append(tok.lemma_.lower())
+    for tok in text.split():
+        if tok.isalnum() and tok not in STOP_WORDS:
+            prep.append(tok.lower())
     return prep
