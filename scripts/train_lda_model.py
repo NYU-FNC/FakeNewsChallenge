@@ -12,7 +12,7 @@ from utils import (
 config = load_config()
 
 # Preprocessing text
-print("Preprocessing text..")
+print("Preprocessing text...")
 data = []
 for doc in tqdm(open(config["gigaword"], "r")):
     data.append(prep_text(doc))
@@ -22,7 +22,7 @@ dct = Dictionary(data)
 doc_term_matrix = [dct.doc2bow(doc) for doc in data]
 
 # Train model
-print("Training LDA model..")
+print("Training LDA model...")
 lda = LdaModel(
     doc_term_matrix,
     id2word=dct,
