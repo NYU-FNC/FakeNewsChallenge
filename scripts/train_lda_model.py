@@ -3,6 +3,7 @@ import wikipedia
 
 from gensim.corpora import Dictionary
 from gensim.models.ldamodel import LdaModel
+from tqdm import tqdm
 
 from utils import (
     load_config,
@@ -12,9 +13,13 @@ from utils import (
 config = load_config()
 
 data = []
-random_articles = wikipedia.random(pages=100000)
 
-for article in random_articles:
+n = 100000
+random_articles = wikipedia.random(pages=n)
+
+# Preprocess articles
+print("Preprocessing articles..")
+for article in tqdm(random_articles, total=n):
     prep = prep_text(wikipedia.page(article).content)
     data.append(prep)
 
