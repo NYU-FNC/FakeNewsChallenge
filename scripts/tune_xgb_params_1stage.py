@@ -81,7 +81,7 @@ def grid_search_params():
     print("Initialize...")
     model = xgb.XGBClassifier(
         learning_rate=0.1,
-        n_estimators=100,
+        n_estimators=1000,
         max_depth=5,
         min_child_weight=1,
         gamma=0,
@@ -100,7 +100,6 @@ def grid_search_params():
     param_grid_1 = {
         "max_depth": range(3, 10, 2),
         "min_child_weight": range(1, 6, 2),
-        "n_estimators": [100, 200, 500, 800],
     }
     grid_search_1 = GridSearchCV(model, param_grid=param_grid_1, verbose=1, n_jobs=-1)
     grid_search_1.fit(X_train.as_matrix(), y_train)
@@ -114,7 +113,7 @@ def grid_search_params():
     print("Re-initialize...")
     model = xgb.XGBClassifier(
         learning_rate=0.1,
-        n_estimators=grid_search_1.best_params_["n_estimators"],
+        n_estimators=1000,
         max_depth=grid_search_1.best_params_["max_depth"],
         min_child_weight=grid_search_1.best_params_["min_child_weight"],
         gamma=0,
@@ -145,7 +144,7 @@ def grid_search_params():
     print("Re-initialize...")
     model = xgb.XGBClassifier(
         learning_rate=0.1,
-        n_estimators=grid_search_1.best_params_["n_estimators"],
+        n_estimators=1000,
         max_depth=grid_search_1.best_params_["max_depth"],
         min_child_weight=grid_search_1.best_params_["min_child_weight"],
         gamma=grid_search_2.best_params_["gamma"],
@@ -177,7 +176,7 @@ def grid_search_params():
     print("Re-initialize...")
     model = xgb.XGBClassifier(
         learning_rate=0.1,
-        n_estimators=grid_search_1.best_params_["n_estimators"],
+        n_estimators=1000,
         max_depth=grid_search_1.best_params_["max_depth"],
         min_child_weight=grid_search_1.best_params_["min_child_weight"],
         gamma=grid_search_2.best_params_["gamma"],
@@ -208,7 +207,7 @@ def grid_search_params():
     print("Re-initialize...")
     model = xgb.XGBClassifier(
         learning_rate=grid_search_4.best_params_["learning_rate"],
-        n_estimators=grid_search_1.best_params_["n_estimators"],
+        n_estimators=1000,
         max_depth=grid_search_1.best_params_["max_depth"],
         min_child_weight=grid_search_1.best_params_["min_child_weight"],
         gamma=grid_search_2.best_params_["gamma"],
