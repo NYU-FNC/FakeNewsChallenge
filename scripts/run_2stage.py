@@ -6,22 +6,66 @@ import xgboost as xgb
 
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import LabelEncoder
+from sklearn.utils import resample
 
 from feature_builder import build_features
 from utils import load_config
 
 
+def select_feats(df):
+    """
+    Select features based on configuration
+    """
+    cols = list(df)
+    for col in cols:
+        if col not in config["feats"] and col != "label":
+            df = df.drop(columns=col)
+    return df
+
+
+def resample_train(df):
+    """
+    Resample training data (stage 2 only)
+    """
+    # Separate classes
+    df_agree = df[df.label == "agree"]
+    df_disagree = df[df.label == "disagree"]
+    df_discuss = df[df.label == "discuss"]
+    # df_unrelated = df[df.label == "unrelated"]
+
+    # Upsample "disagree"
+    n = round(len(df_agree) / 2)
+    df_disagree_up = resample(df_disagree, replace=True, n_samples=n)
+
+    # Combine original and resampled data
+    df_up = pd.concat([
+        df_agree,
+        df_disagree_up,
+        df_discuss,
+        # df_unrelated,
+    ])
+    print(df_up.label.value_counts())
+    return df_up
+
+
 def train(stage):
     """
-    Training
+    Training XGBoost classifier
     """
-    # Load feature file and replace labels
+    # Load and select training features
     train_df = pd.read_csv(config["train_feats"])
+    train_df = select_feats(train_df)
 
     if stage == 1:
+
+        # Replace labels
         train_df["label"] = \
             train_df["label"].replace(["agree", "disagree", "discuss"], "related")
+        # Fit labels
         labels = ["unrelated", "related"]
+        le.fit(labels)
+
+        # Hyperparameter settings
         params = {
             "learning_rate": 0.015,
             "n_estimators": 200,
@@ -36,8 +80,17 @@ def train(stage):
         }
 
     if stage == 2:
+
+        # Resample training data
+        train_df = resample_train(train_df)
+
+        # Replace labels
         train_df = train_df[train_df.label != "unrelated"]
+        # Fit labels
         labels = ["agree", "disagree", "discuss"]
+        le.fit(labels)
+
+        # Hyperparameter settings
         params = {
             "learning_rate": 0.005,
             "n_estimators": 300,
@@ -51,33 +104,34 @@ def train(stage):
             "num_class": len(labels),
         }
 
-    # Split features and label
+    # Split features and labels
     X_train, y_train = np.split(train_df, [-1], axis=1)
-
     # Encode labels
-    le = LabelEncoder()
-    le.fit(labels)
     y_train = le.transform(y_train.as_matrix())
-
     # Build DMatrix
     dtrain = xgb.DMatrix(X_train.as_matrix(), label=y_train)
 
-    # Train model, dump feature map, and save model to file
-    model = xgb.train(params, dtrain, 20, verbose_eval=config["verbose"])
-
+    # Train model
+    model = xgb.train(params, dtrain, 20)
     return model
 
 
-def main():
+def main(rebuild_features=False):
     """
+    Run 2-stage classifier
     """
     # Load config
     global config
     config = load_config()
 
+    # Encode labels
+    global le
+    le = LabelEncoder()
+
     # Build features
-    for split in ("train", "test"):
-        build_features(split, config)
+    if rebuild_features:
+        for split in ("train", "test"):
+            build_features(split, config)
 
     # Train models
     model_1 = train(stage=1)
@@ -86,16 +140,19 @@ def main():
     """
     Stage 1
     """
+    # Load and select testing features
     test_df = pd.read_csv(config["test_feats"])
+    test_df = select_feats(test_df)
+
+    # Replace labels
     test_df["label"] = test_df["label"].replace(["agree", "disagree", "discuss"], "related")
+    # Split features and labels
     X_test, y_test = np.split(test_df, [-1], axis=1)
-
-    # Encode labels
-    le = LabelEncoder()
+    # Fit labels
     le.fit(["unrelated", "related"])
-
-    # Transform and convert to DMatrix
+    # Encode labels
     y_test = le.transform(y_test.as_matrix())
+    # Build DMatrix
     dtest = xgb.DMatrix(X_test.as_matrix(), label=y_test)
 
     # Get predictions
@@ -105,29 +162,30 @@ def main():
     """
     Stage 2
     """
+    # Load and select testing features
     test_df = pd.read_csv(config["test_feats"])
-    X_test, y_test = np.split(test_df, [-1], axis=1)
+    test_df = select_feats(test_df)
 
+    # Split features and labels
+    X_test, y_test = np.split(test_df, [-1], axis=1)
     # Add stage 1 labels
     X_test["label_1"] = pred_1
 
-    # ??
+    # Drop "unrelated" data points
     X_test = X_test[X_test.label_1 != 0]
-    X_test = X_test.drop(["label_1"], axis=1)
+    X_test = X_test.drop(columns="label_1")
 
-    # Encode labels
-    le = LabelEncoder()
+    # Fit labels
     le.fit(["agree", "disagree", "discuss"])
-    print(le.classes_)
 
-    # Convert to DMatrix
+    # Build DMatrix
     dtest = xgb.DMatrix(X_test.as_matrix())
 
     # Get predictions
     pred_2 = model_2.predict(dtest).argmax(axis=1)
 
     """
-    Combine stage 1 and 2
+    Combine predictions
     """
     pred = []
     i = 0
@@ -145,17 +203,19 @@ def main():
         3: "unrelated",
     }
 
-    labels = []
+    # Decode labels
+    pred_labels = []
     for x in pred:
-        labels.append(label_map[x])
+        pred_labels.append(label_map[x])
 
     # Load unlabeled test set
     df = pd.read_csv(config["test_unlabeled"])
 
     # Write output file
-    df["Stance"] = labels
-    df.to_csv("predictions.csv", index=False)
+    assert(len(df) == len(pred_labels))
+    df["Stance"] = pred_labels
+    df.to_csv("predictions.2stage.csv", index=False)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

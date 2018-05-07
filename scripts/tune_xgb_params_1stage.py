@@ -8,6 +8,7 @@ import xgboost as xgb
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import LabelEncoder
+from sklearn.utils import resample
 
 from utils import load_config
 
@@ -20,30 +21,58 @@ warnings.warn = warn
 warnings.simplefilter("ignore", DeprecationWarning)
 
 
-def train(stage):
+def select_feats(df):
     """
-    Training
+    Select features based on configuration
     """
-    print("Stage:", stage)
+    cols = list(df)
+    for col in cols:
+        if col not in config["feats"] and col != "label":
+            df = df.drop(columns=col)
+    return df
+
+
+def resample_train(df):
+    """
+    Resample training data
+    """
+    # Separate majority and minority classes
+    df_agree = df[df.label == "agree"]
+    df_disagree = df[df.label == "disagree"]
+    df_discuss = df[df.label == "discuss"]
+    df_unrelated = df[df.label == "unrelated"]
+
+    # Upsample "disagree"
+    n = round(len(df_agree) / 2)
+    df_disagree_up = resample(df_disagree, replace=True, n_samples=n)
+
+    # Combine original and resampled data
+    df_up = pd.concat([
+        df_agree,
+        df_disagree_up,
+        df_discuss,
+        df_unrelated,
+    ])
+    print(df_up.label.value_counts())
+    return df_up
+
+
+def grid_search_params():
+    """
+    Grid search best parameters for 1-stage classifier
+    """
     best = {}
 
-    # Load feature file and replace labels
+    # Load and select training features
     train_df = pd.read_csv(config["train_feats"])
+    train_df = select_feats(train_df)
 
-    if stage == 1:
-        train_df["label"] = \
-            train_df["label"].replace(["agree", "disagree", "discuss"], "related")
-        num_class = 2
+    # Resample training data
+    train_df = resample_train(train_df)
 
-    if stage == 2:
-        train_df = train_df[train_df.label != "unrelated"]
-        num_class = 3
-
-    # Split features and label
+    # Split features and labels
     X_train, y_train = np.split(train_df, [-1], axis=1)
-
     # Encode labels
-    le = LabelEncoder()
     y_train = le.fit_transform(y_train)
 
     """
@@ -60,7 +89,7 @@ def train(stage):
         colsample_bytree=0.8,
         scale_pos_weight=1,
         objective="multi:softprob",
-        num_class=num_class,
+        num_class=4,
     )
     model.fit(X_train.as_matrix(), y_train)
     auc = accuracy_score(y_train, model.predict(X_train.as_matrix()))
@@ -71,6 +100,7 @@ def train(stage):
     param_grid_1 = {
         "max_depth": range(3, 10, 2),
         "min_child_weight": range(1, 6, 2),
+        "n_estimators": [100, 200, 500, 800],
     }
     grid_search_1 = GridSearchCV(model, param_grid=param_grid_1, verbose=1, n_jobs=-1)
     grid_search_1.fit(X_train.as_matrix(), y_train)
@@ -84,7 +114,7 @@ def train(stage):
     print("Re-initialize...")
     model = xgb.XGBClassifier(
         learning_rate=0.1,
-        n_estimators=100,
+        n_estimators=grid_search_1.best_params_["n_estimators"],
         max_depth=grid_search_1.best_params_["max_depth"],
         min_child_weight=grid_search_1.best_params_["min_child_weight"],
         gamma=0,
@@ -92,7 +122,7 @@ def train(stage):
         colsample_bytree=0.8,
         scale_pos_weight=1,
         objective="multi:softprob",
-        num_class=num_class,
+        num_class=4,
     )
     model.fit(X_train.as_matrix(), y_train)
     auc = accuracy_score(y_train, model.predict(X_train.as_matrix()))
@@ -115,7 +145,7 @@ def train(stage):
     print("Re-initialize...")
     model = xgb.XGBClassifier(
         learning_rate=0.1,
-        n_estimators=100,
+        n_estimators=grid_search_1.best_params_["n_estimators"],
         max_depth=grid_search_1.best_params_["max_depth"],
         min_child_weight=grid_search_1.best_params_["min_child_weight"],
         gamma=grid_search_2.best_params_["gamma"],
@@ -123,7 +153,7 @@ def train(stage):
         colsample_bytree=0.8,
         scale_pos_weight=1,
         objective="multi:softprob",
-        num_class=num_class,
+        num_class=4,
     )
     model.fit(X_train.as_matrix(), y_train)
     auc = accuracy_score(y_train, model.predict(X_train.as_matrix()))
@@ -147,7 +177,7 @@ def train(stage):
     print("Re-initialize...")
     model = xgb.XGBClassifier(
         learning_rate=0.1,
-        n_estimators=100,
+        n_estimators=grid_search_1.best_params_["n_estimators"],
         max_depth=grid_search_1.best_params_["max_depth"],
         min_child_weight=grid_search_1.best_params_["min_child_weight"],
         gamma=grid_search_2.best_params_["gamma"],
@@ -155,7 +185,7 @@ def train(stage):
         colsample_bytree=grid_search_3.best_params_["colsample_bytree"],
         scale_pos_weight=1,
         objective="multi:softprob",
-        num_class=num_class,
+        num_class=4,
     )
     model.fit(X_train.as_matrix(), y_train)
     auc = accuracy_score(y_train, model.predict(X_train.as_matrix()))
@@ -178,7 +208,7 @@ def train(stage):
     print("Re-initialize...")
     model = xgb.XGBClassifier(
         learning_rate=grid_search_4.best_params_["learning_rate"],
-        n_estimators=100,
+        n_estimators=grid_search_1.best_params_["n_estimators"],
         max_depth=grid_search_1.best_params_["max_depth"],
         min_child_weight=grid_search_1.best_params_["min_child_weight"],
         gamma=grid_search_2.best_params_["gamma"],
@@ -186,7 +216,7 @@ def train(stage):
         colsample_bytree=grid_search_3.best_params_["colsample_bytree"],
         scale_pos_weight=1,
         objective="multi:softprob",
-        num_class=num_class,
+        num_class=4,
     )
     model.fit(X_train.as_matrix(), y_train)
     auc = accuracy_score(y_train, model.predict(X_train.as_matrix()))
@@ -198,14 +228,15 @@ def train(stage):
 
 def main():
     """
+    XGBoost parameter tuning
     """
-    # Load config
     global config
     config = load_config()
 
-    # Train models
-    train(stage=1)
-    train(stage=2)
+    global le
+    le = LabelEncoder()
+
+    grid_search_params()
 
 
 if __name__ == '__main__':

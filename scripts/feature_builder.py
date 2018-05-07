@@ -7,8 +7,8 @@ import spacy
 
 from gensim.models import KeyedVectors
 from scipy.spatial.distance import (
-    hamming,
     cosine,
+    hamming,
 )
 from scipy.stats import entropy
 from sklearn.feature_extraction.text import (

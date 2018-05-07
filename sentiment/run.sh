@@ -11,4 +11,3 @@
 export CLASSPATH=stanford-corenlp-full-2018-02-27/*:.
 
 javac SentimentAnnotator.java && java SentimentAnnotator
-
