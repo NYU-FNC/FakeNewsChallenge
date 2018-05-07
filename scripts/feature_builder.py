@@ -38,7 +38,7 @@ INTRO_LEN = 250
 MIN_NGRAM_LEN = 2
 MAX_NGRAM_LEN = 4
 
-REFUTE = set("fake", "fraud", "hoax", "not", "deny", "fabricate", "authenticity")
+REFUTE = {"fake", "fraud", "hoax", "not", "deny", "fabricate", "authenticity"}
 
 
 def tok_dep_is_valid(tok, deps):
@@ -200,7 +200,7 @@ class FeatureBuilder:
         sset = set(stance_ngrams)
         bset = set(body_ngrams)
 
-        intersec = sset.intersection(bset)
+        intersec = len(sset.intersection(bset))
         union = len(sset.union(bset))
         self.feats.append(intersec / union)
 
@@ -226,7 +226,7 @@ class FeatureBuilder:
         sset = set(stance_ngrams)
         bset = set(body_ngrams)
 
-        intersec = sset.intersection(bset)
+        intersec = len(sset.intersection(bset))
         union = len(sset.union(bset))
         self.feats.append(intersec / union)
 
