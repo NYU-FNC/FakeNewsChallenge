@@ -230,8 +230,6 @@ class FeatureBuilder:
         union = len(sset.union(bset))
         self.feats.append(intersec / union)
 
-        self.feats.append(intersec / union)
-
     def KL_pk_qk(self):
         """
         Kullback-Leibler divergence (pk, qk)
