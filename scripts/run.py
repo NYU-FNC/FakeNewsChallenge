@@ -24,7 +24,7 @@ def train(stage):
         labels = ["unrelated", "related"]
         params = {
             "learning_rate": 0.015,
-            "n_estimators": 400,
+            "n_estimators": 200,
             "max_depth": 9,
             "min_child_weight": 1,
             "gamma": 0.0,
@@ -40,7 +40,7 @@ def train(stage):
         labels = ["agree", "disagree", "discuss"]
         params = {
             "learning_rate": 0.005,
-            "n_estimators": 500,
+            "n_estimators": 300,
             "max_depth": 9,
             "min_child_weight": 1,
             "gamma": 0.0,

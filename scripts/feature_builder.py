@@ -24,8 +24,8 @@ from utils import prep_text
 nlp = spacy.load(
     "en_core_web_lg",
     disable=[
-        "tagger",
-        "parser",
+        # "tagger",
+        # "parser",
         "ner",
     ],
 )
@@ -34,7 +34,11 @@ DEP_SUBJ = ["nsubj", "nsubjpass", "csubj", "csubjpass", "agent", "expl"]
 DEP_OBJ = ["dobj", "dative", "attr", "oprd"]
 
 INTRO_LEN = 250
-MAX_NGRAM_LEN = 3
+
+MIN_NGRAM_LEN = 2
+MAX_NGRAM_LEN = 4
+
+REFUTE = set("fake", "fraud", "hoax", "not", "deny", "fabricate", "authenticity")
 
 
 def tok_dep_is_valid(tok, deps):
@@ -90,29 +94,51 @@ class FeatureBuilder:
         for x in self.use:
             getattr(self, x)()
 
-    def hamming_distance(self):
+    def cosine_count(self):
         """
-        Hamming distance between stance/body binary count vectors
+        Cosine similarity between stance/body count vectors
         """
         stancevec = count_vec.transform([self.stance])
         bodyvec = count_vec.transform([self.body])
         assert(stancevec.shape == bodyvec.shape)
 
-        # Compute Hamming distance
-        dist = hamming(stancevec.toarray(), bodyvec.toarray())
+        # Compute cosine similarity
+        dist = cosine(stancevec.toarray(), bodyvec.toarray())
         self.feats.append(dist)
 
-    def stance_sentiment(self):
+    def cosine_tdidf(self):
         """
-        Average CoreNLP sentiment score of stance
+        Cosine similarity between stance/body TF-IDF vectors
         """
-        self.feats.append(self.stance_sentiment_score)
+        stancevec = tfidf_vec.transform([self.stance])
+        bodyvec = tfidf_vec.transform([self.body])
+        assert(stancevec.shape == bodyvec.shape)
 
-    def body_sentiment(self):
+        # Compute cosine similarity
+        dist = cosine(stancevec.toarray(), bodyvec.toarray())
+        self.feats.append(dist)
+
+    def dep_object_overlap(self):
         """
-        Average CoreNLP sentiment score of body
+        Object overlap between stance/body spaCy objects
         """
-        self.feats.append(self.body_sentiment_score)
+        s_obj = set([tok.lemma_ for tok in self.nlpstance
+                     if tok_dep_is_valid(tok, DEP_OBJ)])
+        b_obj = set([tok.lemma_ for tok in self.nlpbody
+                     if tok_dep_is_valid(tok, DEP_OBJ)])
+        intersec = s_obj.intersection(b_obj)
+        self.feats.append(len(intersec))
+
+    def dep_subject_overlap(self):
+        """
+        Subject overlap between stance/body spaCy subjects
+        """
+        s_subj = set([tok.lemma_ for tok in self.nlpstance
+                      if tok_dep_is_valid(tok, DEP_SUBJ)])
+        b_subj = set([tok.lemma_ for tok in self.nlpbody
+                      if tok_dep_is_valid(tok, DEP_SUBJ)])
+        intersec = s_subj.intersection(b_subj)
+        self.feats.append(len(intersec))
 
     def doc_similarity(self):
         """
@@ -127,6 +153,128 @@ class FeatureBuilder:
         """
         sim = self.nlpstance.similarity(self.nlpbody[:INTRO_LEN])
         self.feats.append(sim)
+
+    def hamming_distance(self):
+        """
+        Hamming distance between stance/body binary count vectors
+        """
+        stancevec = count_vec.transform([self.stance])
+        bodyvec = count_vec.transform([self.body])
+        assert(stancevec.shape == bodyvec.shape)
+
+        # Compute Hamming distance
+        dist = hamming(stancevec.toarray(), bodyvec.toarray())
+        self.feats.append(dist)
+
+    def len_stance(self):
+        """
+        Length heading
+        """
+        self.feats.append(len(self.stance.split()))
+
+    def len_body(self):
+        """
+        Length body
+        """
+        self.feats.append(len(self.body.split()))
+
+    def ngram_overlap(self):
+        """
+        N-gram overlap
+        """
+        stance_toks = [tok.lemma_ for tok in self.nlpstance if
+                       not ((tok.lower_ in STOP_WORDS) or tok.is_punct)]
+        body_toks = [tok.lemma_ for tok in self.nlpbody if
+                     not ((tok.lower_ in STOP_WORDS) or tok.is_punct)]
+
+        stance_ngrams = []
+        for n in range(MIN_NGRAM_LEN, MAX_NGRAM_LEN + 1):
+            ngrams = generate_ngrams(stance_toks, n)
+            stance_ngrams.extend(ngrams)
+
+        body_ngrams = []
+        for n in range(MIN_NGRAM_LEN, MAX_NGRAM_LEN + 1):
+            ngrams = generate_ngrams(body_toks, n)
+            body_ngrams.extend(ngrams)
+
+        sset = set(stance_ngrams)
+        bset = set(body_ngrams)
+
+        intersec = sset.intersection(bset)
+        union = len(sset.union(bset))
+        self.feats.append(intersec / union)
+
+    def ngram_overlap_intro(self):
+        """
+        N-gram overlap (intro)
+        """
+        stance_toks = [tok.lemma_ for tok in self.nlpstance if
+                       not ((tok.lower_ in STOP_WORDS) or tok.is_punct)]
+        body_toks = [tok.lemma_ for tok in self.nlpbody[:INTRO_LEN] if
+                     not ((tok.lower_ in STOP_WORDS) or tok.is_punct)]
+
+        stance_ngrams = []
+        for n in range(MIN_NGRAM_LEN, MAX_NGRAM_LEN + 1):
+            ngrams = generate_ngrams(stance_toks, n)
+            stance_ngrams.extend(ngrams)
+
+        body_ngrams = []
+        for n in range(MIN_NGRAM_LEN, MAX_NGRAM_LEN + 1):
+            ngrams = generate_ngrams(body_toks, n)
+            body_ngrams.extend(ngrams)
+
+        sset = set(stance_ngrams)
+        bset = set(body_ngrams)
+
+        intersec = sset.intersection(bset)
+        union = len(sset.union(bset))
+        self.feats.append(intersec / union)
+
+        self.feats.append(intersec / union)
+
+    def KL_pk_qk(self):
+        """
+        Kullback-Leibler divergence (pk, qk)
+        """
+        div = entropy(self.pk, qk=self.qk)
+        self.feats.append(div)
+
+    def KL_qk_pk(self):
+        """
+        Kullback-Leibler divergence (qk, pk)
+        """
+        div = entropy(self.qk, qk=self.pk)
+        self.feats.append(div)
+
+    def refute(self):
+        """
+        Refute words
+        """
+        present = 0
+        if any(tok.lemma_ in REFUTE for tok in self.nlpbody):
+            present = 1
+        self.feats.append(present)
+
+    def refute_intro(self):
+        """
+        Refute words (intro)
+        """
+        present = 0
+        if any(tok.lemma_ in REFUTE for tok in self.nlpbody[:INTRO_LEN]):
+            present = 1
+        self.feats.append(present)
+
+    def sentiment_body(self):
+        """
+        Average CoreNLP sentiment score of body
+        """
+        self.feats.append(self.body_sentiment_score)
+
+    def sentiment_stance(self):
+        """
+        Average CoreNLP sentiment score of stance
+        """
+        self.feats.append(self.stance_sentiment_score)
 
     def word_overlap(self):
         """
@@ -152,104 +300,6 @@ class FeatureBuilder:
         union = len(sset.union(bset))
         self.feats.append(intersec / union)
 
-    def ngram_overlap(self):
-        """
-        N-gram overlap
-        """
-        stance_toks = [tok.lemma_ for tok in self.nlpstance if
-                       not ((tok.lower_ in STOP_WORDS) or tok.is_punct)]
-        body_toks = [tok.lemma_ for tok in self.nlpbody if
-                     not ((tok.lower_ in STOP_WORDS) or tok.is_punct)]
-
-        stance_ngrams = []
-        for n in range(1, MAX_NGRAM_LEN + 1):
-            ngrams = generate_ngrams(stance_toks, n)
-            stance_ngrams.extend(ngrams)
-
-        body_ngrams = []
-        for n in range(1, MAX_NGRAM_LEN + 1):
-            ngrams = generate_ngrams(body_toks, n)
-            body_ngrams.extend(ngrams)
-
-        overlap = 0
-        for ngram in stance_ngrams:
-            if ngram in body_ngrams:
-                overlap += 1
-
-        self.feats.append(overlap)
-
-    def ngram_overlap_intro(self):
-        """
-        N-gram overlap (intro)
-        """
-        stance_toks = [tok.lemma_ for tok in self.nlpstance if
-                       not ((tok.lower_ in STOP_WORDS) or tok.is_punct)]
-        body_toks = [tok.lemma_ for tok in self.nlpbody[:INTRO_LEN] if
-                     not ((tok.lower_ in STOP_WORDS) or tok.is_punct)]
-
-        stance_ngrams = []
-        for n in range(1, MAX_NGRAM_LEN + 1):
-            ngrams = generate_ngrams(stance_toks, n)
-            stance_ngrams.extend(ngrams)
-
-        body_ngrams = []
-        for n in range(1, MAX_NGRAM_LEN + 1):
-            ngrams = generate_ngrams(body_toks, n)
-            body_ngrams.extend(ngrams)
-
-        overlap = 0
-        for ngram in stance_ngrams:
-            if ngram in body_ngrams:
-                overlap += 1
-
-        self.feats.append(overlap)
-
-    def dep_subject_overlap(self):
-        """
-        Subject overlap between stance/body spaCy subjects
-        """
-        s_subj = set([tok.lemma_ for tok in self.nlpstance
-                      if tok_dep_is_valid(tok, DEP_SUBJ)])
-        b_subj = set([tok.lemma_ for tok in self.nlpbody
-                      if tok_dep_is_valid(tok, DEP_SUBJ)])
-        intersec = s_subj.intersection(b_subj)
-        self.feats.append(len(intersec))
-
-    def dep_object_overlap(self):
-        """
-        Object overlap between stance/body spaCy objects
-        """
-        s_obj = set([tok.lemma_ for tok in self.nlpstance
-                     if tok_dep_is_valid(tok, DEP_OBJ)])
-        b_obj = set([tok.lemma_ for tok in self.nlpbody
-                     if tok_dep_is_valid(tok, DEP_OBJ)])
-        intersec = s_obj.intersection(b_obj)
-        self.feats.append(len(intersec))
-
-    def count_cosine(self):
-        """
-        Cosine similarity between stance/body count vectors
-        """
-        stancevec = count_vec.transform([self.stance])
-        bodyvec = count_vec.transform([self.body])
-        assert(stancevec.shape == bodyvec.shape)
-
-        # Compute cosine similarity
-        dist = cosine(stancevec.toarray(), bodyvec.toarray())
-        self.feats.append(dist)
-
-    def tfidf_cosine(self):
-        """
-        Cosine similarity between stance/body TF-IDF vectors
-        """
-        stancevec = tfidf_vec.transform([self.stance])
-        bodyvec = tfidf_vec.transform([self.body])
-        assert(stancevec.shape == bodyvec.shape)
-
-        # Compute cosine similarity
-        dist = cosine(stancevec.toarray(), bodyvec.toarray())
-        self.feats.append(dist)
-
     def wmdistance(self):
         """
         Word movers distance (WMD)
@@ -260,20 +310,6 @@ class FeatureBuilder:
                         not ((tok.lower_ in STOP_WORDS) or tok.is_punct))
         dist = w2v_model.wmdistance(stance, body)
         self.feats.append(dist)
-
-    def KL_pk_qk(self):
-        """
-        Kullback-Leibler divergence (pk, qk)
-        """
-        div = entropy(self.pk, qk=self.qk)
-        self.feats.append(div)
-
-    def KL_qk_pk(self):
-        """
-        Kullback-Leibler divergence (qk, pk)
-        """
-        div = entropy(self.qk, qk=self.pk)
-        self.feats.append(div)
 
 
 def load_or_generate_vectorizer(which, df):

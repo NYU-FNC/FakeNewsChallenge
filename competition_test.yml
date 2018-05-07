@@ -1,20 +1,24 @@
 feats:
-  - hamming_distance
-  - stance_sentiment
-  - body_sentiment
+  - cosine_count
+  - cosine_tdidf
+  - dep_object_overlap
+  - dep_subject_overlap
   - doc_similarity
   - doc_similarity_intro
-  - word_overlap
-  - word_overlap_intro
+  - hamming_distance
+  - len_stance
+  - len_body
   - ngram_overlap
   - ngram_overlap_intro
-  # - dep_subject_overlap
-  # - dep_object_overlap
-  - count_cosine
-  - tfidf_cosine
-  - wmdistance
   - KL_pk_qk
   - KL_qk_pk
+  - refute
+  - refute_intro
+  - sentiment_body
+  - sentiment_stance
+  - word_overlap
+  - word_overlap_intro
+  - wmdistance
 
 train_stances: ./fnc-1/train_stances.csv
 train_bodies: ./fnc-1/train_bodies.csv
@@ -29,7 +33,7 @@ test_unlabeled: ./fnc-1/competition_test_stances_unlabeled.csv
 count_vec: ./data/count_vectorizer.pkl
 tfidf_vec: ./data/tfidf_vectorizer.pkl
 
-verbose: true
+verbose: false
 
 train_stances_sentiment: ./data/sentiment/train_stances.sentiment.txt
 train_bodies_sentiment: ./data/sentiment/train_bodies.sentiment.txt
