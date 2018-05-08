@@ -327,14 +327,14 @@ def load_or_generate_vectorizer(which, df):
             vec = CountVectorizer(
                 binary=True,
                 min_df=2,
-                ngram_range=(1, 3),
+                # ngram_range=(1, 3),
                 stop_words=STOP_WORDS,
             )
         # Generate TfidfVectorizer()
         if which == "tfidf":
             vec = TfidfVectorizer(
                 min_df=2,
-                ngram_range=(1, 3),
+                # ngram_range=(1, 3),
                 stop_words=STOP_WORDS,
             )
 
