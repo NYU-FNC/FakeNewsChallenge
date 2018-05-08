@@ -1,0 +1,49 @@
+unrelated    36545
+discuss       8909
+agree         3678
+disagree      1839
+Name: label, dtype: int64
+Initialize...
+Model accuracy: 0.994369347275902 
+
+--- PARAMETER GRID 1 ---
+
+Fitting 3 folds for each of 12 candidates, totalling 36 fits
+{'max_depth': 7, 'min_child_weight': 1} 
+
+Re-initialize...
+Model accuracy: 1.0 
+
+--- PARAMETER GRID 2 ---
+
+Fitting 3 folds for each of 5 candidates, totalling 15 fits
+[Parallel(n_jobs=-1)]: Done  34 out of  36 | elapsed:  9.9min remaining:   35.0s
+[Parallel(n_jobs=-1)]: Done  36 out of  36 | elapsed: 10.6min finished
+{'gamma': 0.4} 
+
+Re-initialize...
+Model accuracy: 0.999823429008652 
+
+--- PARAMETER GRID 3 ---
+
+Fitting 3 folds for each of 16 candidates, totalling 48 fits
+[Parallel(n_jobs=-1)]: Done   8 out of  15 | elapsed:  4.5min remaining:  3.9min
+[Parallel(n_jobs=-1)]: Done  15 out of  15 | elapsed:  5.0min finished
+{'colsample_bytree': 0.9, 'subsample': 0.9} 
+
+Re-initialize...
+Model accuracy: 0.9998430480076906 
+
+--- PARAMETER GRID 4 ---
+
+Fitting 3 folds for each of 8 candidates, totalling 24 fits
+[Parallel(n_jobs=-1)]: Done  48 out of  48 | elapsed: 15.4min finished
+[Parallel(n_jobs=-1)]: Done  10 out of  24 | elapsed:  7.6min remaining: 10.7min
+[Parallel(n_jobs=-1)]: Done  24 out of  24 | elapsed:  9.7min finished
+{'learning_rate': 0.019} 
+
+Re-initialize...
+Model accuracy: 0.9676482705852347 
+
+--- BEST PARAMETERS ---
+{'max_depth': 7, 'min_child_weight': 1, 'gamma': 0.4, 'colsample_bytree': 0.9, 'subsample': 0.9, 'learning_rate': 0.019}

@@ -67,12 +67,12 @@ def train(stage):
 
         # Hyperparameter settings
         params = {
-            "learning_rate": 0.015,
-            "n_estimators": 200,
-            "max_depth": 9,
+            "learning_rate": 0.019,
+            "n_estimators": 1000,
+            "max_depth": 5,
             "min_child_weight": 1,
-            "gamma": 0.0,
-            "subsample": 0.6,
+            "gamma": 0.3,
+            "subsample": 0.8,
             "colsample_bytree": 0.8,
             "scale_pos_weight": 1,
             "objective": "multi:softprob",
@@ -82,7 +82,7 @@ def train(stage):
     if stage == 2:
 
         # Resample training data
-        train_df = resample_train(train_df)
+        #train_df = resample_train(train_df)
 
         # Replace labels
         train_df = train_df[train_df.label != "unrelated"]
@@ -92,13 +92,13 @@ def train(stage):
 
         # Hyperparameter settings
         params = {
-            "learning_rate": 0.005,
-            "n_estimators": 300,
-            "max_depth": 9,
+            "learning_rate": 0.019,
+            "n_estimators": 1000,
+            "max_depth": 7,
             "min_child_weight": 1,
-            "gamma": 0.0,
-            "subsample": 0.6,
-            "colsample_bytree": 0.9,
+            "gamma": 0.2,
+            "subsample": 0.9,
+            "colsample_bytree": 0.7,
             "scale_pos_weight": 1,
             "objective": "multi:softprob",
             "num_class": len(labels),

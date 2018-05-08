@@ -67,11 +67,11 @@ def train():
 
     # Hyperparameter settings
     params = {
-        "learning_rate": 0.02,
-        "n_estimators": 800,
+        "learning_rate": 0.019,
+        "n_estimators": 1000,
         "max_depth": 7,
         "min_child_weight": 1,
-        "gamma": 0.0,
+        "gamma": 0.4,
         "subsample": 0.9,
         "colsample_bytree": 0.9,
         "scale_pos_weight": 1,
