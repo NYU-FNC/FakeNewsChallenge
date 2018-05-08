@@ -62,7 +62,7 @@ There are two output files containing the predictions on the competition test se
 
 ### 1-stage classifier
 
-The top score after feature selection and hyperparameter tuning for the 1-stage classifier was **9128.5, or **78.35%**.
+The top score after feature selection and hyperparameter tuning for the 1-stage classifier is **9128.5, or **78.35%**.
 
 ```
 (fnc) [mt3685@c38-15 FakeNewsChallenge]$ python scripts/scorer.py fnc-1/competition_test_stances.csv predictions.1stage.csv
@@ -90,7 +90,7 @@ TEST - score based on the provided predictions
 
 ### 2-stage classifier
 
-The top score after feature selection and hyperparameter tuning for the 2-stage classifier was **9161.5**, or **78.63%**.
+The top score after feature selection and hyperparameter tuning for the 2-stage classifier is **9161.5**, or **78.63%**.
 
 ```
 (fnc) [mt3685@c38-15 FakeNewsChallenge]$ python scripts/scorer.py fnc-1/competition_test_stances.csv predictions.2stage.csv
@@ -114,4 +114,39 @@ TEST - score based on the provided predictions
 
 ||    MAX    ||    NULL   ||    TEST   ||
 || 11651.25  ||  4587.25  ||  9161.5   ||
+```
+
+#### Resampling
+
+The original dataset is highly imbalanced, with the majority of example pairs being "unrelated":
+
+| agree | disagree | discuss | unrelated | total |
+|:-----:|:--------:|:-------:|:---------:|:-----:|
+|  3678 |      840 |    8909 |     36545 | 49972 |
+
+
+To improve recall on "disagree" examples, we experimented with [oversampling](https://en.wikipedia.org/wiki/Oversampling_and_undersampling_in_data_analysis) the training data to introduce a bias towards "disagree" predictions. After resampling, the number of "disagree" samples in the training data increases from 840 to 3678 (the original number of "agree" samples). When using resampling, the recall for "disagree" improves, while the precision for "discuss" decreases significantly. The overall accuracy of the 2-stage classifier with resampling is **9115.75**, or **78.24%**.
+
+```
+(fnc) [mt3685@c38-15 FakeNewsChallenge]$ python scripts/scorer.py fnc-1/competition_test_stances.csv predictions.2stage.csv
+CONFUSION MATRIX:
+-------------------------------------------------------------
+|           |   agree   | disagree  |  discuss  | unrelated |
+-------------------------------------------------------------
+|   agree   |    25     |    21     |   1718    |    139    |
+-------------------------------------------------------------
+| disagree  |     4     |     7     |    529    |    157    |
+-------------------------------------------------------------
+|  discuss  |    33     |    84     |   3993    |    354    |
+-------------------------------------------------------------
+| unrelated |     6     |     3     |    366    |   17974   |
+-------------------------------------------------------------
+ACCURACY: 0.866
+
+MAX  - the best possible score (100% accuracy)
+NULL - score as if all predicted stances were unrelated
+TEST - score based on the provided predictions
+
+||    MAX    ||    NULL   ||    TEST   ||
+|| 11651.25  ||  4587.25  ||  9115.75  ||
 ```

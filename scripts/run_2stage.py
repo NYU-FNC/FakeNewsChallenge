@@ -34,7 +34,7 @@ def resample_train(df):
     # df_unrelated = df[df.label == "unrelated"]
 
     # Upsample "disagree"
-    n = round(len(df_agree) / 2)
+    n = len(df_agree)
     df_disagree_up = resample(df_disagree, replace=True, n_samples=n)
 
     # Combine original and resampled data
@@ -81,8 +81,8 @@ def train(stage):
 
     if stage == 2:
 
-        # Resample training data
-        #train_df = resample_train(train_df)
+        # # Resample training data
+        # train_df = resample_train(train_df)
 
         # Replace labels
         train_df = train_df[train_df.label != "unrelated"]
