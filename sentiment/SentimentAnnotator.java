@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.util.Scanner;
 
 
-// export CLASSPATH=stanford-corenlp-full-2018-02-27/*:.
-
 public class SentimentAnnotator {
 
     public static void main(String[] args) throws IOException {
@@ -49,12 +47,11 @@ public class SentimentAnnotator {
 
                 // Skip
                 if (!file.getName().endsWith(".txt")) continue;
+                System.out.println(file.getName());
 
                 // Read file                
                 Scanner scan = new Scanner(new File(file.getAbsolutePath()));
-                
-		System.out.println(file.getName());
-
+                      
                 // Output file path
                 String fp = file.getAbsolutePath() + ".sentiment.txt";
                 BufferedWriter writer = new BufferedWriter(new FileWriter(fp));
@@ -64,7 +61,7 @@ public class SentimentAnnotator {
                 while(scan.hasNextLine()){
 
                     cnt++;
-		    if ((cnt % 50) == 0) System.out.println(cnt);
+                    if ((cnt % 50) == 0) System.out.println(cnt);
 
                     // Get text
                     String text = scan.nextLine();
@@ -83,7 +80,6 @@ public class SentimentAnnotator {
                         int sentiment = RNNCoreAnnotations.getPredictedClass(tree);
                         total += sentiment;
                     }
-
                     // Get average
                     double avg = total / (double) sentence_cnt;
                     writer.write(String.valueOf(avg) + "\n");

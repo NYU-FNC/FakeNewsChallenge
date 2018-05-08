@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 """
+NB: This script is outdated, follow the instructions in the README instead.
+
 1. Download the CoreNLP models, unzip, place the folder in the root directory of the project
     http://nlp.stanford.edu/software/stanford-corenlp-full-2018-02-27.zip
 
