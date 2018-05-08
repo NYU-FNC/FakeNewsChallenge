@@ -1,24 +1,24 @@
 feats:
-  # - cosine_count
+  - cosine_count
   - cosine_tdidf
   # - dep_object_overlap
   # - dep_subject_overlap
-  - doc_similarity
-  - doc_similarity_intro
-  # - hamming_distance
-  - len_stance
-  - len_body
-  - ngram_overlap
-  - ngram_overlap_intro
+  # - doc_similarity
+  # - doc_similarity_intro
+  - hamming_distance
+  # - len_stance
+  # - len_body
+  # - ngram_overlap
+  # - ngram_overlap_intro
   # - KL_pk_qk
   # - KL_qk_pk
-  - refute
-  - refute_intro
+  # - refute
+  # - refute_intro
   # - sentiment_body
   # - sentiment_stance
-  - word_overlap
-  - word_overlap_intro
-  - wmdistance
+  # - word_overlap
+  # - word_overlap_intro
+  # - wmdistance
 
 train_stances: ./fnc-1/train_stances.csv
 train_bodies: ./fnc-1/train_bodies.csv
