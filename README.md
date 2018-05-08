@@ -45,7 +45,7 @@ Note that most of the scripts require that you pass a **configuration file** as 
 Most importantly, `competition_test.yml` contains the list of features that will be included or generated on each run. 
 ### Bash scripts
 
-Alternatively, use `sbatch` and the bash scripts below to run extensive Python jobs on the [high performance computing (HPC)](https://wikis.nyu.edu/display/NYUHPC/High+Performance+Computing+at+NYU) cluster:
+Alternatively, use `sbatch` and the bash scripts below to run extensive Python jobs on [HPC](https://wikis.nyu.edu/display/NYUHPC/High+Performance+Computing+at+NYU):
 
 - `run_1stage.sh`
 - `run_2stage.sh`
@@ -62,7 +62,7 @@ There are two output files containing the predictions on the competition test se
 
 ### 1-stage classifier
 
-The top score after feature selection and hyperparameter tuning for the 1-stage classifier was 9128.5, or **78.35%**.
+The top score after feature selection and hyperparameter tuning for the 1-stage classifier was **9128.5, or **78.35%**.
 
 ```
 (fnc) [mt3685@c38-15 FakeNewsChallenge]$ python scripts/scorer.py fnc-1/competition_test_stances.csv predictions.1stage.csv
@@ -90,7 +90,7 @@ TEST - score based on the provided predictions
 
 ### 2-stage classifier
 
-The top score after feature selection and hyperparameter tuning for the 2-stage classifier was 9161.5, or **78.63%**.
+The top score after feature selection and hyperparameter tuning for the 2-stage classifier was **9161.5**, or **78.63%**.
 
 ```
 (fnc) [mt3685@c38-15 FakeNewsChallenge]$ python scripts/scorer.py fnc-1/competition_test_stances.csv predictions.2stage.csv
@@ -114,6 +114,4 @@ TEST - score based on the provided predictions
 
 ||    MAX    ||    NULL   ||    TEST   ||
 || 11651.25  ||  4587.25  ||  9161.5   ||
-
-(fnc) [mt3685@c38-15 FakeNewsChallenge]$
 ```
