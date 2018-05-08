@@ -125,7 +125,9 @@ The original dataset is highly imbalanced, with the majority of example pairs be
 |  3678 |      840 |    8909 |     36545 | 49972 |
 
 
-To improve recall on "disagree" examples, we experimented with [oversampling](https://en.wikipedia.org/wiki/Oversampling_and_undersampling_in_data_analysis) the training data to introduce a bias towards "disagree" predictions. After resampling, the number of "disagree" samples in the training data increases from 840 to 3678 (the original number of "agree" samples). When using resampling, the recall for "disagree" improves, while the precision for "discuss" decreases significantly. The overall accuracy of the 2-stage classifier with resampling is **9115.75**, or **78.24%**.
+To improve recall on "disagree" examples, we experimented with [oversampling](https://en.wikipedia.org/wiki/Oversampling_and_undersampling_in_data_analysis) the training data to introduce a bias towards "disagree" predictions. After resampling, the number of "disagree" samples in the training data increases from 840 to 3678 (the original number of "agree" samples). When using resampling, the recall for "disagree" improves, while the precision for "discuss" decreases significantly.
+
+The overall accuracy of the 2-stage classifier with resampling is **9115.75**, or **78.24%**.
 
 ```
 (fnc) [mt3685@c38-15 FakeNewsChallenge]$ python scripts/scorer.py fnc-1/competition_test_stances.csv predictions.2stage.csv
