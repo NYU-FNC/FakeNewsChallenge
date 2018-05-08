@@ -17,7 +17,7 @@ First, use the Python script to convert the original .csv data files to one-docu
 (fnc) [sentiment]$ python prep_sentiment.py
 ```
 
-Next, use the Java program in `SentimentAnnotator.java` to obtain a sentiment score for each document in the data .txt files:
+Next, use the Java program in `SentimentAnnotator.java` to obtain a sentiment score for each document in the data files:
 
 ```
 (fnc) [sentiment]$ export CLASSPATH=stanford-corenlp-full-2018-02-27/*:.
