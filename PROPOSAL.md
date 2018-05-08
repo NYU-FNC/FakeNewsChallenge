@@ -41,7 +41,7 @@ The distribution of the output labels is overwhelmingly "unrelated" to the headl
 
 ### Baseline
 
-FNC-1 provides a [baseline model](https://github.com/FakeNewsChallenge/fnc-1-baseline) based of hand-engineered features (such as n-gram co-occurrence counts between the headline and article and indicator features for polarity and refutation) and a gradient-boosting classifier. Based on this model, the baseline accuracy was 79.53%.
+FNC-1 provides a [baseline model](https://github.com/FakeNewsChallenge/fnc-1-baseline) based of hand-engineered features (such as n-gram co-occurrence counts between the headline and article and indicator features for polarity and refutation) and a gradient-boosting classifier. Based on this model, the baseline accuracy was 75.20%.
 
 As mentioned previously, the baseline implementation performs well in separating related stances from unrelated ones, but rather poorly when differentiating between "agree", "disagree", and "discuss". Our goal is to improve performance on this part while still achieving the baseline accuracy.
 
