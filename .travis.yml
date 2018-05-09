@@ -1,0 +1,19 @@
+before_install:
+- sudo apt-get update
+- sudo apt-get install texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended
+script:
+- cd report
+- mkdir _build
+- pdflatex -interaction=nonstopmode -output-directory=./_build FakeNewsChallenge.tex
+- bibtex ./_build/FakeNewsChallenge
+- pdflatex -interaction=nonstopmode -output-directory=./_build FakeNewsChallenge.tex
+deploy:
+  provider: releases
+  api_key:
+    secure: lKE6D17e+9NPdtjgoH3scmAde2F9rUOn0Kr/FFn6Edt/qx5akdIJij4efrU5k1TDOufy1bgBms8o+EDYGtOqeJb44iMj8Vmn+OwXP+xwSalVMTE1HWkWgKGayYiwVIj34G6Bnl9SXNzOlaDe28t1OK+/2D4zyNJxLBUUuPfkuoiNBUxXoZ2sg7dAZ2Ab3QBlAkYVONsOvMbefUeyo8G+QG4VKZlPd+CfevO1FwkIIj8rFAQ2QLjlwDhnyHrWuTJGg7eODm5ybOt2cPlG24NmN6ahja3JEewwpUqmR5aBY4MI+5DZLIzv6OUra0FtiZ/sgOjUjmP+XPZ7Ky+o4jx2l9Csmdg2/0uEtk4fO0bCc5I6R/ErUtMuWOxYsSZWgP6KvWvekRZu/jqKbISpx/SF1UgYtVdTXjdriLnrvtp5y52P4n/yHsOjbfL2VHpv2baE5oh1w0haxpS8SH3IGHz+45hGgzAHuuHzdb2YXEBHeNgQKjEgzcv+Z9PahInHvvZoV4/C12qsB4T/l1RhYateUrRULomzkj8TfJViWT/Htbxn3KLuxyNtAdr2TtSMiwUmNcgXbSxOj9OcYuWvH7PhUY7UH/eUFYZERFxtRrupjqFZ9yg9rZSAacdIoKT5Gu8ZIdE+PEeyGXYxtkk5HadSDrOzDCq8PyTqEnyXuRGLmy8=
+  file:
+    - ./_build/FakeNewsChallenge.pdf
+  skip_cleanup: true
+  on:
+    tags: true
+    branch: master

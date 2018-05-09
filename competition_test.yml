@@ -1,0 +1,46 @@
+feats:
+  - cosine_count
+  - cosine_tdidf
+  # - dep_object_overlap
+  # - dep_subject_overlap
+  # - doc_similarity
+  # - doc_similarity_intro
+  - hamming_distance
+  # - len_stance
+  # - len_body
+  # - ngram_overlap
+  # - ngram_overlap_intro
+  # - KL_pk_qk
+  # - KL_qk_pk
+  # - refute
+  # - refute_intro
+  # - sentiment_body
+  # - sentiment_stance
+  # - word_overlap
+  # - word_overlap_intro
+  # - wmdistance
+
+train_stances: ./fnc-1/train_stances.csv
+train_bodies: ./fnc-1/train_bodies.csv
+train_feats: ./data/feats.train.all.csv
+
+test_stances: ./fnc-1/competition_test_stances.csv
+test_bodies: ./fnc-1/competition_test_bodies.csv
+test_feats: ./data/feats.competition_test.all.csv
+
+test_unlabeled: ./fnc-1/competition_test_stances_unlabeled.csv
+
+count_vec: ./data/vectorizer.count.pkl
+tfidf_vec: ./data/vectorizer.tfidf.pkl
+
+train_stances_sentiment: ./data/sentiment/train_stances.sentiment.txt
+train_bodies_sentiment: ./data/sentiment/train_bodies.sentiment.txt
+
+test_stances_sentiment: ./data/sentiment/competition_test_stances.sentiment.txt
+test_bodies_sentiment: ./data/sentiment/competition_test_bodies.sentiment.txt
+
+lda_model: ./data/lda.model.pkl
+lda_dct: ./data/lda.dct.pkl
+
+embeddings: /scratch/mt3685/GoogleNews-vectors-negative300.bin
+gigaword: /scratch/mt3685/nyt.txt
